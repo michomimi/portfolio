@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Micheal Jabour · Full-stack developer</title>
+<meta name="description" content="Full-stack developer in Calgary. E-commerce platforms, internal tools and the operations behind them. Selected work, experience and CV.">
+<meta name="theme-color" content="#0B0D10">
+
+<!-- Theme is set before the stylesheet paints, otherwise someone on the
+     light theme gets a flash of dark on every page load. Inline and
+     synchronous on purpose: an external file would run too late. -->
+<script>(function(){var d=document.documentElement;try{var t=localStorage.getItem("portfolio-theme");
+if(t!=="light"&&t!=="dark"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";}
+d.dataset.theme=t;}catch(e){d.dataset.theme="dark";}
+/* Turn the scroll reveal on. Set here, before first paint, so copy never
+   flashes in and then hides. The timer is the safety net: if nothing has
+   been revealed after 2.2s the class is dropped and everything shows. */
+d.className+=" js";
+setTimeout(function(){if(!document.querySelector(".reveal.in")){d.classList.remove("js");}},2200);})();</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=1">
+
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icon-180.png">
+<link rel="manifest" href="/site.webmanifest">
+
+<link rel="canonical" href="https://michomimi.github.io/portfolio/">
+<meta property="og:type" content="profile">
+<meta property="og:title" content="Micheal Jabour · Full-stack developer">
+<meta property="og:description" content="Full-stack developer in Calgary. E-commerce platforms, internal tools and the operations behind them.">
+<meta property="og:image" content="https://michomimi.github.io/portfolio/images/social/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- Filled in by app.js from PROFILE, so it can never contradict the page -->
+<script type="application/ld+json" id="schema">{}</script>
+</head>
+
+<body data-page="home">
+
+<main id="main">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="wrap" data-hero></div>
+  </section>
+
+  <!-- ================= WORK ================= -->
+  <section id="work">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <p class="eyebrow">Selected work</p>
+        <h2>Things I have designed, built and shipped</h2>
+        <p>Every one of these is live and the code is public. I would rather show
+          you something running than describe something finished.</p>
+      </div>
+      <div class="grid grid-2" data-projects></div>
+    </div>
+  </section>
+
+  <!-- ================= EXPERIENCE ================= -->
+  <section id="experience">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <p class="eyebrow">Experience</p>
+        <h2>Where I have worked</h2>
+      </div>
+      <div class="timeline" data-experience></div>
+    </div>
+  </section>
+
+  <!-- ================= ABOUT ================= -->
+  <section id="about">
+    <div class="wrap">
+      <div class="grid grid-2" style="gap:clamp(2rem,5vw,4rem); align-items:start">
+        <div class="reveal">
+          <p class="eyebrow">About</p>
+          <h2>A bit of background</h2>
+        </div>
+        <div class="reveal d1" data-about></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SKILLS ================= -->
+  <section id="skills">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <p class="eyebrow">Toolkit</p>
+        <h2>What I work with</h2>
+        <p>Listed honestly. Anything here is fair game in an interview.</p>
+      </div>
+      <div class="grid grid-3" data-skills></div>
+    </div>
+  </section>
+
+  <!-- ================= SIDE PROJECT ================= -->
+  <section id="aside">
+    <div class="wrap">
+      <div class="aside-note reveal">
+        <p class="eyebrow">Outside the day job</p>
+        <h2 style="margin-bottom:.8rem">I DJ, and I built the business around it</h2>
+        <p class="lead">
+          I play open-format around Calgary, in English and Arabic, mostly weddings
+          and private events. It is also where a lot of my engineering practice comes
+          from: I designed the brand, built the bilingual site, wrote the tooling that
+          produces the agreements and invoices, and I run the whole thing myself.
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-ghost" href="https://djmishoo.ca" target="_blank" rel="noopener">Visit djmishoo.ca</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CONTACT ================= -->
+  <section id="contact">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <p class="eyebrow">Contact</p>
+        <h2>Let's talk</h2>
+        <p>The quickest way to reach me is email. I answer everything.</p>
+      </div>
+      <div class="contact-grid" data-contact></div>
+    </div>
+  </section>
+
+</main>
+
+<script src="js/app.js?v=1" defer></script>
+<script src="js/motion.js?v=1" defer></script>
+</body>
+</html>

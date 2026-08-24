@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found · Micheal Jabour</title>
+<meta name="description" content="Full-stack developer in Calgary. E-commerce platforms, internal tools and the operations behind them. Selected work, experience and CV.">
+<meta name="theme-color" content="#0B0D10">
+
+<!-- Theme is set before the stylesheet paints, otherwise someone on the
+     light theme gets a flash of dark on every page load. Inline and
+     synchronous on purpose: an external file would run too late. -->
+<script>(function(){var d=document.documentElement;try{var t=localStorage.getItem("portfolio-theme");
+if(t!=="light"&&t!=="dark"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";}
+d.dataset.theme=t;}catch(e){d.dataset.theme="dark";}
+/* Turn the scroll reveal on. Set here, before first paint, so copy never
+   flashes in and then hides. The timer is the safety net: if nothing has
+   been revealed after 2.2s the class is dropped and everything shows. */
+d.className+=" js";
+setTimeout(function(){if(!document.querySelector(".reveal.in")){d.classList.remove("js");}},2200);})();</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=1">
+
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icon-180.png">
+<link rel="manifest" href="/site.webmanifest">
+
+<meta name="robots" content="noindex">
+<meta property="og:type" content="profile">
+<meta property="og:title" content="Micheal Jabour · Full-stack developer">
+<meta property="og:description" content="Full-stack developer in Calgary. E-commerce platforms, internal tools and the operations behind them.">
+<meta property="og:image" content="https://michomimi.github.io/portfolio/images/social/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- Filled in by app.js from PROFILE, so it can never contradict the page -->
+<script type="application/ld+json" id="schema">{}</script>
+</head>
+
+<body data-page="404">
+<main id="main">
+  <section style="padding-top:clamp(72px,12vw,140px)">
+    <div class="wrap">
+      <p class="eyebrow">404</p>
+      <h1 style="margin-bottom:1rem">This page does not exist</h1>
+      <p class="lead">The link is wrong or the page has moved. Nothing is broken on your end.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="index.html">Back to the portfolio</a>
+        <a class="btn btn-ghost" href="resume.html">Read the CV</a>
+      </div>
+    </div>
+  </section>
+</main>
+<script src="js/app.js?v=1" defer></script>
+<script src="js/motion.js?v=1" defer></script>
+</body>
+</html>
