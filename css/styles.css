@@ -1,390 +1,935 @@
 /* =====================================================================
    PORTFOLIO — Micheal Jabour
 
-   Deliberately not the DJ site. That one is a poster: huge condensed
-   type, red, loud. A developer portfolio is read by someone deciding
-   whether to interview you, often skimming on a phone between meetings,
-   so this is built for reading: a calm ground, one accent, generous
-   line length, and nothing moving that does not have to.
+   Design brief: this is read by someone deciding whether to interview
+   you, often skimming on a phone. So it has to do two things at once —
+   look like it was built by someone who knows what they are doing, and
+   still be readable in fifteen seconds.
+
+   The look is borrowed from developer tooling and observability
+   dashboards: near-black ground, a faint engineering grid behind
+   everything, one electric accent, and monospaced labels on anything
+   that is data rather than prose. Deliberately NOT a fake terminal —
+   green-on-black is a costume, not a design.
 
    Structure of this file
-     1. tokens          colour, type, spacing
-     2. reset and base
-     3. layout          shell, sections, grid
-     4. components      buttons, cards, chips, timeline
-     5. sections        hero, projects, experience, contact
-     6. motion          scroll reveal
-     7. print           the CV page
+     1.  tokens            colour, type, spacing
+     2.  reset and base
+     3.  backdrop          the grid and the glow behind the page
+     4.  header and nav    including the mobile panel
+     5.  buttons
+     6.  hero              headline and the profile.json card
+     7.  ticker            the scrolling stack strip
+     8.  stats             the counting numbers
+     9.  projects
+     10. experience
+     11. about
+     12. skills
+     13. side project
+     14. contact
+     15. footer
+     16. motion            scroll reveal
+     17. CV and print
    ===================================================================== */
 
 /* =====================================================================
    1. TOKENS
    ===================================================================== */
 :root{
-  /* Ground is a very dark blue rather than black. Pure black next to
-     white text vibrates on an LCD; a little blue in it settles down. */
-  --bg:        #0B0D10;
-  --bg-2:      #12151A;   /* cards */
-  --bg-3:      #1A1E25;   /* insets, hovers */
+  color-scheme: dark;
 
-  --ink:       #E9ECF1;
-  --ink-2:     rgba(233,236,241,.72);
-  --ink-3:     rgba(233,236,241,.48);
+  /* Ground is near-black with blue in it. Pure black next to white text
+     vibrates on an LCD; a few points of blue settle it down. The four
+     surfaces step up from it, so depth comes from stacking rather than
+     from shadows, which stay expensive and blur badly while scrolling. */
+  --bg:      #07090C;
+  --bg-2:    #0B0F15;   /* cards */
+  --bg-3:    #111823;   /* insets, chips */
+  --bg-4:    #1A2331;   /* hovers, active */
 
-  /* One accent, used for links, active states and anything the eye
-     should land on first. Sky blue reads as technical without the
-     "terminal green" cliché, and clears 7:1 on the ground above. */
-  --accent:      #4CC2FF;
-  --accent-rgb:  76, 194, 255;
-  --accent-2:    #8B7BFF;   /* second accent, used sparingly */
+  --ink:     #EDF1F7;
+  --ink-2:   rgba(237,241,247,.70);
+  --ink-3:   rgba(237,241,247,.44);
+  --ink-4:   rgba(237,241,247,.24);
 
-  --line:      rgba(233,236,241,.12);
-  --line-2:    rgba(233,236,241,.07);
+  /* One accent carries links, active states and every number. Electric
+     cyan reads as technical and clears 12:1 on the ground above, so it
+     is safe at body size and not only on headings. Violet is the second
+     voice, used for the side project and half of each gradient. */
+  --accent:      #5EE9FF;
+  --accent-rgb:  94, 233, 255;
+  --accent-2:    #A78BFA;
+  --accent-2-rgb: 167, 139, 250;
+  --accent-ink:  #04141A;   /* text on top of the accent */
 
-  --ok:        #4ADE80;
+  --ok:      #6EE7A8;
 
-  --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --line:    rgba(237,241,247,.13);
+  --line-2:  rgba(237,241,247,.07);
+  --grid:    rgba(237,241,247,.045);
 
-  --radius:   14px;
-  --radius-s: 9px;
-  --maxw:     1120px;
-  --ease:     cubic-bezier(.2,.8,.25,1);
-  --header-h: 68px;
+  /* Syntax colours for the profile.json card in the hero. */
+  --t-key:   #A78BFA;
+  --t-str:   #5EE9FF;
+  --t-num:   #FFB86B;
+  --t-punc:  rgba(237,241,247,.34);
+
+  /* Space Grotesk for display: geometric, slightly odd, and not the
+     Inter everybody else has. Inter still does the body text, because
+     it is better at small sizes than anything with personality. */
+  --display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --sans:    "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono:    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --radius:   16px;
+  --radius-s: 10px;
+  --radius-xs: 7px;
+  --maxw:     1180px;
+  --ease:     cubic-bezier(.22,.8,.28,1);
+  --header-h: 64px;
 }
 
-/* A light theme, for anyone reading in daylight or printing. */
+/* Light theme, for daylight and for printing. Not an inversion: the
+   accent has to change hue-brightness or it disappears on white. */
 :root[data-theme="light"]{
   color-scheme: light;
-  --bg:     #F7F8FA;
-  --bg-2:   #FFFFFF;
-  --bg-3:   #EEF1F5;
-  --ink:    #0F1319;
-  --ink-2:  rgba(15,19,25,.74);
-  --ink-3:  rgba(15,19,25,.52);
-  /* The same sky blue is far too pale on white, so the light theme gets
-     a deeper one. Same hue, enough contrast to read at body size. */
-  --accent:     #0B6FB8;
-  --accent-rgb: 11, 111, 184;
-  --accent-2:   #5B4BD6;
-  --line:   rgba(15,19,25,.16);
-  --line-2: rgba(15,19,25,.09);
+  --bg:      #FAFBFD;
+  --bg-2:    #FFFFFF;
+  --bg-3:    #F1F4F8;
+  --bg-4:    #E6EBF2;
+
+  --ink:     #0A0E14;
+  --ink-2:   rgba(10,14,20,.72);
+  --ink-3:   rgba(10,14,20,.50);
+  --ink-4:   rgba(10,14,20,.30);
+
+  /* The same cyan is unreadable on white, so the light theme gets a
+     deep teal-blue. Same family, 7:1 on the ground, still not corporate. */
+  --accent:      #0E7490;
+  --accent-rgb:  14, 116, 144;
+  --accent-2:    #6D28D9;
+  --accent-2-rgb: 109, 40, 217;
+  --accent-ink:  #FFFFFF;
+
+  --ok:      #12915C;
+
+  --line:    rgba(10,14,20,.15);
+  --line-2:  rgba(10,14,20,.08);
+  --grid:    rgba(10,14,20,.05);
+
+  --t-key:   #6D28D9;
+  --t-str:   #0E7490;
+  --t-num:   #B45309;
+  --t-punc:  rgba(10,14,20,.38);
 }
 
 /* =====================================================================
    2. RESET AND BASE
    ===================================================================== */
 *{ box-sizing:border-box; margin:0; padding:0; }
+
 html{
   scroll-behavior:smooth;
-  scroll-padding-top:calc(var(--header-h) + 24px);
+  scroll-padding-top:calc(var(--header-h) + 28px);
   -webkit-text-size-adjust:100%;
 }
+
 body{
-  font-family:var(--sans); font-size:16px; line-height:1.65;
-  color:var(--ink); background:var(--bg);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.65;
+  color:var(--ink);
+  background:var(--bg);
   -webkit-font-smoothing:antialiased;
   overflow-x:hidden;
 }
+
 img{ display:block; max-width:100%; }
 a{ color:inherit; text-decoration:none; }
 button,input,textarea,select{ font:inherit; color:inherit; }
 button{ background:none; border:none; cursor:pointer; }
 ul{ list-style:none; }
-:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; border-radius:4px; }
-::selection{ background:rgba(var(--accent-rgb),.28); }
 
-/* Skip link. The first thing a keyboard reaches, invisible until then. */
+:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; border-radius:4px; }
+::selection{ background:rgba(var(--accent-rgb),.26); color:var(--ink); }
+
+/* The first thing a keyboard reaches, invisible until then. */
 .skip{
-  position:absolute; left:-9999px; top:0; z-index:100;
-  background:var(--accent); color:#00131F; padding:.7rem 1.1rem;
-  border-radius:0 0 var(--radius-s) 0; font-weight:600;
+  position:absolute; left:-9999px; top:0; z-index:200;
+  background:var(--accent); color:var(--accent-ink);
+  padding:.7rem 1.1rem; border-radius:0 0 var(--radius-s) 0;
+  font-weight:600;
 }
 .skip:focus{ left:0; }
 
-h1,h2,h3,h4{ line-height:1.15; letter-spacing:-.02em; font-weight:650; }
-h1{ font-size:clamp(2.1rem, 5vw, 3.5rem); letter-spacing:-.035em; }
-h2{ font-size:clamp(1.5rem, 3vw, 2.1rem); }
-h3{ font-size:1.05rem; }
+h1,h2,h3,h4{
+  font-family:var(--display);
+  line-height:1.08;
+  letter-spacing:-.03em;
+  font-weight:600;
+}
+h2{ font-size:clamp(1.7rem, 3.4vw, 2.6rem); }
+h3{ font-size:1.06rem; letter-spacing:-.015em; }
 p{ color:var(--ink-2); }
 
-.wrap{ width:100%; max-width:var(--maxw); margin-inline:auto; padding-inline:clamp(20px,5vw,32px); }
-section{ padding-block:clamp(56px, 9vw, 104px); position:relative; }
-.hide{ display:none !important; }
-
-/* The small monospaced label above each section heading. Mono because it
-   reads as metadata rather than prose, which is what it is. */
-.eyebrow{
-  font-family:var(--mono); font-size:.75rem; letter-spacing:.14em;
-  text-transform:uppercase; color:var(--accent);
-  display:flex; align-items:center; gap:.6rem; margin-bottom:.9rem;
+.wrap{
+  width:100%; max-width:var(--maxw);
+  margin-inline:auto;
+  padding-inline:clamp(20px, 5vw, 40px);
 }
-.eyebrow::before{ content:""; width:18px; height:1px; background:currentColor; }
 
-.sec-head{ margin-bottom:clamp(2rem, 4vw, 3rem); max-width:62ch; }
-.sec-head p{ margin-top:.8rem; }
-.lead{ font-size:clamp(1rem,1.5vw,1.12rem); color:var(--ink-2); max-width:64ch; }
+/* Two of these stacked is the gap between one section and the next, so
+   this number is doubled in practice. 96 reads as generous; 128 read as
+   a hole in the page. */
+section{ padding-block:clamp(52px, 7.5vw, 96px); position:relative; }
+
+/* The monospaced label above each heading. Mono because it is metadata,
+   not prose, and the eye should read it as a different kind of thing. */
+.eyebrow{
+  font-family:var(--mono);
+  font-size:.72rem; font-weight:500;
+  letter-spacing:.18em; text-transform:uppercase;
+  color:var(--accent);
+  display:flex; align-items:center; gap:.65rem;
+  margin-bottom:1rem;
+}
+.eyebrow::before{
+  content:""; width:22px; height:1px;
+  background:currentColor; opacity:.7; flex:none;
+}
+
+.sec-head{ margin-bottom:clamp(2.2rem, 4.5vw, 3.4rem); max-width:64ch; }
+.sec-head p{ margin-top:.9rem; }
+
+.lead{
+  font-size:clamp(1rem, 1.4vw, 1.14rem);
+  color:var(--ink-2);
+  max-width:62ch;
+}
+
+/* A hairline that fades out at both ends. Used between big sections so
+   they read as separate without a hard rule cutting the page in half. */
+.rule{
+  height:1px; border:0; margin:0;
+  background:linear-gradient(90deg, transparent, var(--line), transparent);
+}
 
 /* =====================================================================
-   3. HEADER
+   3. BACKDROP
+
+   A single fixed layer behind everything: an engineering grid, masked so
+   it fades out before it reaches the bottom of the viewport, plus two
+   soft colour washes. Fixed and pointer-events:none, so it costs nothing
+   while scrolling and never intercepts a click.
+   ===================================================================== */
+.backdrop{
+  position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background-color:var(--bg);
+}
+.backdrop::before{
+  content:""; position:absolute; inset:0;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:56px 56px;
+  -webkit-mask-image:radial-gradient(130% 90% at 50% 0%, #000 5%, transparent 68%);
+          mask-image:radial-gradient(130% 90% at 50% 0%, #000 5%, transparent 68%);
+}
+.backdrop::after{
+  content:""; position:absolute; inset:0;
+  background:
+    radial-gradient(58% 42% at 12% -8%,  rgba(var(--accent-rgb),.16),   transparent 62%),
+    radial-gradient(48% 38% at 92% 2%,   rgba(var(--accent-2-rgb),.13), transparent 60%);
+}
+
+/* =====================================================================
+   4. HEADER AND NAV
    ===================================================================== */
 .site-header{
-  position:sticky; top:0; z-index:60; height:var(--header-h);
-  background:color-mix(in srgb, var(--bg) 82%, transparent);
-  backdrop-filter:blur(14px);
-  border-bottom:1px solid var(--line-2);
+  position:sticky; top:0; z-index:80;
+  height:var(--header-h);
+  background:color-mix(in srgb, var(--bg) 72%, transparent);
+  backdrop-filter:blur(16px) saturate(140%);
+  -webkit-backdrop-filter:blur(16px) saturate(140%);
+  border-bottom:1px solid transparent;
+  transition:border-color .25s, background-color .25s;
 }
+/* Only draws its underline once the page has actually moved, so the top
+   of the page is one uninterrupted surface. */
+.site-header.is-stuck{
+  border-bottom-color:var(--line-2);
+  background:color-mix(in srgb, var(--bg) 88%, transparent);
+}
+
 .header-inner{ height:100%; display:flex; align-items:center; gap:1rem; }
-.brand{ font-weight:650; letter-spacing:-.02em; font-size:1.02rem; }
+
+.brand{
+  display:inline-flex; align-items:center; gap:.6rem;
+  font-family:var(--display); font-weight:600;
+  letter-spacing:-.02em; font-size:1.02rem;
+}
+.brand-mark{
+  width:26px; height:26px; flex:none;
+  display:grid; place-items:center;
+  border-radius:8px;
+  font-family:var(--mono); font-size:.72rem; font-weight:500;
+  color:var(--accent-ink);
+  background:linear-gradient(140deg, var(--accent), var(--accent-2));
+}
 .brand span{ color:var(--accent); }
-.nav{ display:flex; gap:1.6rem; margin-inline-start:auto; }
-.nav a{ font-size:.92rem; color:var(--ink-2); transition:color .15s; }
-.nav a:hover, .nav a.is-active{ color:var(--ink); }
-.header-actions{ display:flex; align-items:center; gap:.6rem; margin-inline-start:auto; }
-.nav + .header-actions{ margin-inline-start:1.4rem; }
+
+.nav{ display:flex; gap:.3rem; margin-inline-start:auto; }
+.nav a{
+  position:relative;
+  font-family:var(--mono); font-size:.78rem; letter-spacing:.04em;
+  color:var(--ink-3);
+  padding:.4rem .7rem; border-radius:var(--radius-xs);
+  transition:color .16s, background-color .16s;
+}
+.nav a::before{
+  content:attr(data-i);
+  color:var(--accent); opacity:0;
+  margin-inline-end:.35rem;
+  transition:opacity .16s;
+}
+.nav a:hover{ color:var(--ink); background:var(--bg-3); }
+.nav a.is-active{ color:var(--ink); background:var(--bg-3); }
+.nav a.is-active::before{ opacity:1; }
+
+.header-actions{ display:flex; align-items:center; gap:.55rem; margin-inline-start:auto; }
+.nav + .header-actions{ margin-inline-start:1.2rem; }
 
 .icon-btn{
-  width:36px; height:36px; display:grid; place-items:center;
-  border-radius:999px; color:var(--ink-2);
+  width:36px; height:36px; flex:none;
+  display:grid; place-items:center;
+  border-radius:var(--radius-xs);
+  color:var(--ink-3);
   box-shadow:inset 0 0 0 1px var(--line);
-  transition:color .15s, box-shadow .15s, background-color .15s;
+  transition:color .16s, box-shadow .16s, background-color .16s;
 }
-.icon-btn:hover{ color:var(--ink); background:var(--bg-3); }
-.icon-btn svg{ width:17px; height:17px; fill:none; stroke:currentColor;
-               stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.icon-btn:hover{ color:var(--ink); background:var(--bg-3); box-shadow:inset 0 0 0 1px var(--line); }
+.icon-btn svg{
+  width:17px; height:17px;
+  fill:none; stroke:currentColor; stroke-width:1.7;
+  stroke-linecap:round; stroke-linejoin:round;
+}
 
-@media (max-width:760px){
+/* The mobile menu. The old build simply hid the nav under 760px and put
+   nothing in its place, which left a phone with no way to reach any
+   section — the one device most of this traffic arrives on. */
+.nav-toggle{ display:none; }
+
+.mobile-nav{
+  position:fixed; inset:var(--header-h) 0 auto 0; z-index:70;
+  background:color-mix(in srgb, var(--bg) 96%, transparent);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line-2);
+  padding:.6rem clamp(20px,5vw,40px) 1.4rem;
+  display:none; flex-direction:column;
+}
+.mobile-nav.is-open{ display:flex; }
+.mobile-nav a{
+  font-family:var(--mono); font-size:.95rem;
+  color:var(--ink-2);
+  padding:.85rem .2rem;
+  border-bottom:1px solid var(--line-2);
+  display:flex; align-items:center; gap:.7rem;
+}
+.mobile-nav a:last-child{ border-bottom:0; }
+.mobile-nav a i{
+  font-style:normal; font-size:.72rem; color:var(--accent); opacity:.8;
+}
+
+@media (max-width:860px){
   .nav{ display:none; }
+  .nav-toggle{ display:grid; }
+  .header-actions .btn-ghost{ display:none; }
+}
+@media (max-width:520px){
+  .header-actions .btn{ display:none; }
 }
 
 /* =====================================================================
-   4. BUTTONS
+   5. BUTTONS
    ===================================================================== */
 .btn{
   display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
-  font-weight:600; font-size:.94rem; padding:.72rem 1.3rem;
-  border-radius:var(--radius-s); white-space:nowrap;
-  transition:background-color .16s, color .16s, box-shadow .16s, transform .16s var(--ease);
+  font-weight:600; font-size:.92rem;
+  padding:.74rem 1.3rem;
+  border-radius:var(--radius-s);
+  white-space:nowrap;
+  transition:background-color .16s, color .16s, box-shadow .18s,
+             transform .18s var(--ease), border-color .16s;
 }
 .btn:active{ transform:translateY(1px); }
-.btn-primary{ background:var(--accent); color:#00131F; }
-.btn-primary:hover{ box-shadow:0 8px 26px -10px rgba(var(--accent-rgb),.7); transform:translateY(-2px); }
+
+.btn-primary{
+  background:linear-gradient(140deg, var(--accent), color-mix(in srgb, var(--accent) 62%, var(--accent-2)));
+  color:var(--accent-ink);
+}
+.btn-primary:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 30px -12px rgba(var(--accent-rgb),.75);
+}
+
 .btn-ghost{ color:var(--ink); box-shadow:inset 0 0 0 1px var(--line); }
-.btn-ghost:hover{ background:var(--bg-3); box-shadow:inset 0 0 0 1px var(--accent); transform:translateY(-2px); }
-.btn svg{ width:16px; height:16px; fill:none; stroke:currentColor;
-          stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+.btn-ghost:hover{
+  background:var(--bg-3);
+  box-shadow:inset 0 0 0 1px rgba(var(--accent-rgb),.55);
+  transform:translateY(-2px);
+}
+
+.btn svg{
+  width:16px; height:16px; flex:none;
+  fill:none; stroke:currentColor; stroke-width:1.9;
+  stroke-linecap:round; stroke-linejoin:round;
+}
 
 /* =====================================================================
-   5. HERO
+   6. HERO
    ===================================================================== */
-.hero{ padding-block:clamp(64px, 11vw, 132px) clamp(40px, 7vw, 80px); }
-.hero h1{ margin:.7rem 0 1.1rem; max-width:16ch; }
-.hero h1 em{ font-style:normal; color:var(--accent); }
-.hero .lead{ font-size:clamp(1.02rem,1.7vw,1.2rem); }
-.hero-cta{ display:flex; flex-wrap:wrap; gap:.7rem; margin-top:2rem; }
+.hero{ padding-block:clamp(48px, 8vw, 96px) clamp(40px, 6vw, 72px); }
 
-/* Availability pill. A hiring manager wants to know this in the first
-   two seconds, so it sits above the name rather than in the footer. */
+.hero-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+  gap:clamp(2rem, 5vw, 4.5rem);
+  align-items:center;
+}
+@media (max-width:960px){
+  /* minmax(0,1fr), never a bare 1fr: see the note on .role below. */
+  .hero-grid{ grid-template-columns:minmax(0,1fr); gap:2.6rem; }
+}
+
+/* Availability. A hiring manager wants this in the first two seconds,
+   so it sits above the name rather than buried in the footer. */
 .status{
-  display:inline-flex; align-items:center; gap:.5rem;
-  font-size:.82rem; color:var(--ink-2);
-  background:var(--bg-2); box-shadow:inset 0 0 0 1px var(--line);
-  padding:.34rem .8rem; border-radius:999px;
+  display:inline-flex; align-items:center; gap:.55rem;
+  font-family:var(--mono); font-size:.75rem; letter-spacing:.06em;
+  color:var(--ink-2);
+  background:var(--bg-2);
+  box-shadow:inset 0 0 0 1px var(--line);
+  padding:.4rem .85rem;
+  border-radius:999px;
 }
 .status i{
-  width:7px; height:7px; border-radius:50%; background:var(--ok);
-  box-shadow:0 0 0 3px rgba(74,222,128,.18);
+  width:7px; height:7px; flex:none; border-radius:50%;
+  background:var(--ok);
+  box-shadow:0 0 0 3px rgba(110,231,168,.16);
   animation:pulse 2.4s ease-in-out infinite;
 }
-@keyframes pulse{ 0%,100%{ opacity:1 } 50%{ opacity:.45 } }
+@keyframes pulse{ 0%,100%{ opacity:1 } 50%{ opacity:.4 } }
+
+.h-display{
+  font-size:clamp(2.6rem, 7vw, 4.6rem);
+  letter-spacing:-.045em;
+  margin:1.1rem 0 1.3rem;
+  max-width:14ch;
+}
+.h-display em{ font-style:normal; color:var(--accent); display:block; }
+/* Gradient headline, but only where the browser can actually clip paint
+   to the glyphs. Without the guard, an unsupporting browser renders
+   transparent text on a transparent ground: an invisible headline. */
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  .h-display em{
+    background:linear-gradient(96deg, var(--accent) 10%, var(--accent-2) 92%);
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent; color:transparent;
+  }
+}
+
+.hero .lead{ font-size:clamp(1.02rem, 1.5vw, 1.18rem); }
+.hero-cta{ display:flex; flex-wrap:wrap; gap:.7rem; margin-top:2.2rem; }
+
+/* Three mono facts under the buttons. Cheap to read, and they answer
+   the questions that otherwise cost an email each. */
+.hero-meta{
+  display:flex; flex-wrap:wrap; gap:.5rem 1.6rem;
+  margin-top:2.2rem; padding-top:1.5rem;
+  border-top:1px solid var(--line-2);
+}
+.hero-meta div{
+  font-family:var(--mono); font-size:.74rem; letter-spacing:.04em;
+  color:var(--ink-3);
+}
+.hero-meta b{ display:block; color:var(--ink-2); font-weight:500; margin-top:.15rem; }
+
+/* ---- the profile.json card ----
+   Real data, rendered from PROFILE like everything else, so it cannot
+   drift from the rest of the page. It is a portrait substitute: it says
+   "developer" faster than a paragraph does, without pretending to be a
+   working terminal. */
+.code-card{
+  background:var(--bg-2);
+  border:1px solid var(--line-2);
+  border-radius:var(--radius);
+  overflow:hidden;
+  box-shadow:0 30px 70px -40px rgba(0,0,0,.9);
+  position:relative;
+}
+.code-card::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  border-radius:inherit;
+  background:linear-gradient(150deg, rgba(var(--accent-rgb),.09), transparent 42%);
+}
+.code-bar{
+  display:flex; align-items:center; gap:.7rem;
+  padding:.7rem .95rem;
+  border-bottom:1px solid var(--line-2);
+  background:var(--bg-3);
+}
+.code-dots{ display:flex; gap:.35rem; }
+.code-dots i{ width:9px; height:9px; border-radius:50%; background:var(--ink-4); }
+.code-name{
+  font-family:var(--mono); font-size:.74rem; color:var(--ink-3);
+  letter-spacing:.04em;
+}
+.code-tag{
+  margin-inline-start:auto;
+  font-family:var(--mono); font-size:.66rem; letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--accent);
+  background:rgba(var(--accent-rgb),.1);
+  box-shadow:inset 0 0 0 1px rgba(var(--accent-rgb),.25);
+  padding:.16rem .45rem; border-radius:5px;
+}
+.code-body{
+  font-family:var(--mono);
+  font-size:clamp(.72rem, 1.05vw, .82rem);
+  line-height:1.85;
+  padding:1.1rem .95rem 1.3rem;
+  overflow-x:auto;
+}
+.code-line{ display:flex; gap:1rem; white-space:pre; }
+.code-line .ln{
+  color:var(--ink-4); width:1.4rem; flex:none;
+  text-align:right; -webkit-user-select:none; user-select:none;
+}
+.t-key{ color:var(--t-key); }
+.t-str{ color:var(--t-str); }
+.t-num{ color:var(--t-num); }
+.t-punc{ color:var(--t-punc); }
 
 /* =====================================================================
-   6. CARDS, CHIPS, GRID
-   ===================================================================== */
-.grid{ display:grid; gap:1.1rem; }
-.grid-2{ grid-template-columns:repeat(auto-fit, minmax(min(300px,100%), 1fr)); }
-.grid-3{ grid-template-columns:repeat(auto-fit, minmax(min(260px,100%), 1fr)); }
+   7. TICKER
 
-.card{
-  background:var(--bg-2); border:1px solid var(--line-2);
-  border-radius:var(--radius); padding:1.5rem;
-  transition:border-color .18s, transform .2s var(--ease), box-shadow .2s;
+   The stack, scrolling. It is decoration, but it is honest decoration:
+   the list is the same skills object the Toolkit section is built from,
+   so it can never advertise something the page does not claim.
+   ===================================================================== */
+.ticker{
+  position:relative;
+  border-block:1px solid var(--line-2);
+  background:color-mix(in srgb, var(--bg-2) 60%, transparent);
+  padding-block:.95rem;
+  overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+          mask-image:linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
 }
-.card h3{ margin-bottom:.5rem; }
-.card p{ font-size:.94rem; }
+.ticker-track{
+  display:flex; width:max-content;
+  animation:slide 46s linear infinite;
+}
+.ticker:hover .ticker-track{ animation-play-state:paused; }
+.ticker-item{
+  display:inline-flex; align-items:center; gap:.7rem;
+  font-family:var(--mono); font-size:.78rem; letter-spacing:.05em;
+  color:var(--ink-3);
+  padding-inline:1.1rem;
+  white-space:nowrap;
+}
+.ticker-item::after{
+  content:""; width:4px; height:4px; border-radius:50%;
+  background:var(--accent); opacity:.5;
+}
+@keyframes slide{ from{ transform:translate3d(0,0,0) } to{ transform:translate3d(-50%,0,0) } }
+
+/* =====================================================================
+   8. STATS
+
+   Four numbers, counted up on arrival. Numbers land harder than
+   adjectives — but only if they survive being checked, which is why the
+   note under each one says where it comes from.
+   ===================================================================== */
+.stats-sec{ padding-block:clamp(48px, 7vw, 84px); }
+.stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(min(200px,100%), 1fr));
+  gap:1px;
+  background:var(--line-2);
+  border:1px solid var(--line-2);
+  border-radius:var(--radius);
+  overflow:hidden;
+}
+.stat{
+  background:var(--bg-2);
+  padding:1.6rem 1.5rem 1.5rem;
+  position:relative;
+  transition:background-color .2s;
+}
+.stat:hover{ background:var(--bg-3); }
+.stat-idx{
+  position:absolute; top:1rem; inset-inline-end:1.1rem;
+  font-family:var(--mono); font-size:.66rem;
+  color:var(--ink-4); letter-spacing:.1em;
+}
+.stat-num{
+  font-family:var(--display);
+  font-size:clamp(2.2rem, 4.4vw, 3rem);
+  font-weight:600; letter-spacing:-.045em; line-height:1;
+  color:var(--accent);
+  /* Tabular figures, or the number jitters horizontally while it counts. */
+  font-variant-numeric:tabular-nums;
+  font-feature-settings:"tnum" 1;
+}
+.stat-num .unit{ font-size:.55em; color:var(--ink-3); margin-inline-start:.08em; }
+.stat-label{
+  margin-top:.7rem;
+  font-size:.92rem; font-weight:500; color:var(--ink);
+  line-height:1.4;
+}
+.stat-note{
+  margin-top:.3rem;
+  font-family:var(--mono); font-size:.7rem; letter-spacing:.03em;
+  color:var(--ink-3);
+}
+
+/* =====================================================================
+   9. PROJECTS
+   ===================================================================== */
+.grid{ display:grid; gap:1.2rem; }
+.grid-2{ grid-template-columns:repeat(auto-fit, minmax(min(330px,100%), 1fr)); }
+.grid-3{ grid-template-columns:repeat(auto-fit, minmax(min(270px,100%), 1fr)); }
+
+.project{
+  position:relative;
+  background:var(--bg-2);
+  border:1px solid var(--line-2);
+  border-radius:var(--radius);
+  overflow:hidden;
+  display:flex; flex-direction:column;
+  transition:border-color .2s, transform .24s var(--ease), box-shadow .24s;
+}
+.project:hover{
+  border-color:rgba(var(--accent-rgb),.42);
+  transform:translateY(-4px);
+  box-shadow:0 30px 60px -34px rgba(0,0,0,.95);
+}
+.project-idx{
+  position:absolute; top:.9rem; inset-inline-start:1rem; z-index:2;
+  font-family:var(--mono); font-size:.7rem; letter-spacing:.12em;
+  color:var(--ink-2);
+  background:color-mix(in srgb, var(--bg) 70%, transparent);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  padding:.2rem .5rem; border-radius:5px;
+  box-shadow:inset 0 0 0 1px var(--line-2);
+}
+.project-shot{
+  aspect-ratio:16/9;
+  background:var(--bg-3);
+  position:relative; overflow:hidden;
+  border-bottom:1px solid var(--line-2);
+}
+.project-shot img{
+  width:100%; height:100%; object-fit:cover;
+  transition:transform .5s var(--ease);
+}
+.project:hover .project-shot img{ transform:scale(1.04); }
+/* Until a screenshot exists the slot shows the project's initials over a
+   grid, rather than a broken image or an empty grey box. This is why the
+   cards look finished before any screenshots are taken. */
+.project-shot .ph{
+  position:absolute; inset:0;
+  display:grid; place-items:center;
+  font-family:var(--display); font-size:2.4rem; font-weight:600;
+  letter-spacing:.06em; color:var(--ink-4);
+  background:
+    radial-gradient(110% 90% at 28% 8%, rgba(var(--accent-rgb),.14), transparent 62%),
+    linear-gradient(var(--grid) 1px, transparent 1px) 0 0/28px 28px,
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/28px 28px,
+    var(--bg-3);
+}
+.project-body{
+  padding:1.4rem 1.5rem 1.5rem;
+  display:flex; flex-direction:column; gap:.85rem; flex:1;
+}
+.project-role{
+  font-family:var(--mono); font-size:.7rem; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--accent);
+}
+.project h3{ font-size:1.28rem; }
+.project p{ font-size:.93rem; }
+.project-links{ display:flex; gap:1.2rem; margin-top:auto; padding-top:.5rem; }
+.project-links a{
+  font-size:.86rem; font-weight:600; color:var(--accent);
+  display:inline-flex; align-items:center; gap:.4rem;
+}
+.project-links a:hover{ text-decoration:underline; text-underline-offset:3px; }
+.project-links svg{
+  width:14px; height:14px; fill:none; stroke:currentColor;
+  stroke-width:2; stroke-linecap:round; stroke-linejoin:round;
+}
 
 .chips{ display:flex; flex-wrap:wrap; gap:.4rem; }
 .chip{
-  font-family:var(--mono); font-size:.74rem; letter-spacing:.02em;
+  font-family:var(--mono); font-size:.71rem; letter-spacing:.02em;
   color:var(--ink-2); background:var(--bg-3);
   box-shadow:inset 0 0 0 1px var(--line-2);
   padding:.28rem .58rem; border-radius:6px;
 }
-.chip-accent{ color:var(--accent); background:rgba(var(--accent-rgb),.10);
-              box-shadow:inset 0 0 0 1px rgba(var(--accent-rgb),.28); }
+.chip-accent{
+  color:var(--accent);
+  background:rgba(var(--accent-rgb),.09);
+  box-shadow:inset 0 0 0 1px rgba(var(--accent-rgb),.26);
+}
 
 /* =====================================================================
-   7. PROJECTS
+   10. EXPERIENCE
    ===================================================================== */
-.project{
-  background:var(--bg-2); border:1px solid var(--line-2);
-  border-radius:var(--radius); overflow:hidden;
-  display:flex; flex-direction:column;
-  transition:border-color .18s, transform .2s var(--ease), box-shadow .2s;
-}
-.project:hover{
-  border-color:rgba(var(--accent-rgb),.4); transform:translateY(-3px);
-  box-shadow:0 22px 44px -28px rgba(0,0,0,.9);
-}
-.project-shot{
-  aspect-ratio:16/9; background:var(--bg-3); position:relative; overflow:hidden;
-  border-bottom:1px solid var(--line-2);
-}
-.project-shot img{ width:100%; height:100%; object-fit:cover; }
-/* Until a screenshot exists the slot shows the project's initials rather
-   than a broken image or an empty grey box. */
-.project-shot .ph{
-  position:absolute; inset:0; display:grid; place-items:center;
-  font-family:var(--mono); font-size:2rem; letter-spacing:.1em;
-  color:var(--ink-3);
-  background:
-    radial-gradient(120% 90% at 30% 10%, rgba(var(--accent-rgb),.12), transparent 60%),
-    var(--bg-3);
-}
-.project-body{ padding:1.4rem 1.5rem 1.5rem; display:flex; flex-direction:column; gap:.8rem; flex:1; }
-.project-role{ font-family:var(--mono); font-size:.74rem; letter-spacing:.1em;
-               text-transform:uppercase; color:var(--accent); }
-.project h3{ font-size:1.15rem; }
-.project p{ font-size:.94rem; }
-.project-links{ display:flex; gap:1rem; margin-top:auto; padding-top:.4rem; }
-.project-links a{
-  font-size:.88rem; font-weight:600; color:var(--accent);
-  display:inline-flex; align-items:center; gap:.35rem;
-}
-.project-links a:hover{ text-decoration:underline; text-underline-offset:3px; }
-.project-links svg{ width:14px; height:14px; fill:none; stroke:currentColor;
-                    stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-
-/* =====================================================================
-   8. EXPERIENCE TIMELINE
-   ===================================================================== */
-.timeline{ display:flex; flex-direction:column; gap:0; }
+.timeline{ display:flex; flex-direction:column; }
 .role{
-  display:grid; grid-template-columns:minmax(120px, 170px) 1fr;
-  gap:clamp(1rem, 3vw, 2.4rem);
-  padding-block:1.7rem;
+  display:grid;
+  /* A bare `1fr` is minmax(auto,1fr), and that auto floor is the column's
+     max-content width — one long unbroken bullet then widens the whole
+     page instead of wrapping. minmax(0,…) is the version that shrinks. */
+  grid-template-columns:minmax(130px, 180px) minmax(0, 1fr);
+  gap:clamp(1rem, 3vw, 2.6rem);
+  padding-block:1.9rem;
   border-top:1px solid var(--line-2);
+  position:relative;
 }
 .role:first-child{ border-top:0; padding-top:0; }
 .role-when{
-  font-family:var(--mono); font-size:.8rem; color:var(--ink-3);
-  padding-top:.2rem;
+  font-family:var(--mono); font-size:.78rem;
+  color:var(--ink-3); padding-top:.2rem;
 }
-.role-when b{ display:block; color:var(--ink-2); font-weight:500; }
-.role h3{ font-size:1.08rem; }
-.role-at{ color:var(--accent); font-weight:600; }
-.role ul{ margin-top:.7rem; display:flex; flex-direction:column; gap:.4rem; }
+.role-when b{ display:block; color:var(--accent); font-weight:500; margin-bottom:.15rem; }
+.role h3{ font-size:1.2rem; }
+.role-at{
+  display:block; margin-top:.2rem;
+  font-family:var(--mono); font-size:.82rem; font-weight:500;
+  color:var(--ink-2); letter-spacing:.02em;
+}
+.role ul{ margin-top:.9rem; display:flex; flex-direction:column; gap:.45rem; }
 .role li{
-  color:var(--ink-2); font-size:.94rem; padding-inline-start:1.1rem; position:relative;
+  color:var(--ink-2); font-size:.93rem;
+  padding-inline-start:1.2rem; position:relative;
 }
 .role li::before{
   content:""; position:absolute; inset-inline-start:0; top:.62em;
-  width:5px; height:5px; border-radius:50%; background:var(--accent); opacity:.65;
+  width:5px; height:5px; border-radius:1px;
+  background:var(--accent); opacity:.7;
+  transform:rotate(45deg);
 }
-.role .chips{ margin-top:.9rem; }
+.role .chips{ margin-top:1rem; }
 
-@media (max-width:640px){
-  .role{ grid-template-columns:1fr; gap:.5rem; }
+@media (max-width:680px){
+  .role{ grid-template-columns:minmax(0,1fr); gap:.6rem; }
 }
 
 /* =====================================================================
-   9. SKILLS
+   11. ABOUT
    ===================================================================== */
+.about-grid{
+  display:grid;
+  grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);
+  gap:clamp(2rem, 5vw, 4rem);
+  align-items:start;
+}
+@media (max-width:860px){ .about-grid{ grid-template-columns:minmax(0,1fr); } }
+
+.about-copy p{ margin-bottom:1.1rem; }
+
+/* Key/value rows. The same information as a paragraph, but scannable —
+   which is what actually happens on a first pass. */
+.facts{
+  margin-top:1.8rem;
+  border:1px solid var(--line-2);
+  border-radius:var(--radius-s);
+  overflow:hidden;
+}
+.fact{
+  display:flex; gap:1rem; align-items:baseline;
+  padding:.75rem 1.1rem;
+  border-bottom:1px solid var(--line-2);
+  font-family:var(--mono); font-size:.78rem;
+}
+.fact:last-child{ border-bottom:0; }
+.fact span{ color:var(--ink-3); width:6.5rem; flex:none; letter-spacing:.05em; }
+.fact b{ color:var(--ink-2); font-weight:500; }
+
+/* =====================================================================
+   12. SKILLS
+   ===================================================================== */
+.skill-group{
+  background:var(--bg-2);
+  border:1px solid var(--line-2);
+  border-radius:var(--radius);
+  padding:1.4rem 1.4rem 1.5rem;
+  transition:border-color .2s, transform .24s var(--ease);
+}
+.skill-group:hover{ border-color:rgba(var(--accent-rgb),.34); transform:translateY(-3px); }
+.skill-head{
+  display:flex; align-items:center; gap:.6rem;
+  margin-bottom:1rem; padding-bottom:.85rem;
+  border-bottom:1px solid var(--line-2);
+}
+.skill-idx{ font-family:var(--mono); font-size:.68rem; color:var(--accent); letter-spacing:.1em; }
 .skill-group h3{
-  font-family:var(--mono); font-size:.78rem; letter-spacing:.12em;
-  text-transform:uppercase; color:var(--ink-3); margin-bottom:.8rem;
+  font-family:var(--mono); font-size:.76rem; font-weight:500;
+  letter-spacing:.13em; text-transform:uppercase; color:var(--ink-2);
+}
+.skill-count{
+  margin-inline-start:auto;
+  font-family:var(--mono); font-size:.68rem; color:var(--ink-4);
 }
 
 /* =====================================================================
-   10. SIDE PROJECT / DJ BLOCK
+   13. SIDE PROJECT
    ===================================================================== */
 .aside-note{
+  position:relative; overflow:hidden;
   background:
-    radial-gradient(90% 120% at 100% 0%, rgba(139,123,255,.13), transparent 60%),
+    radial-gradient(80% 130% at 100% 0%, rgba(var(--accent-2-rgb),.16), transparent 58%),
     var(--bg-2);
-  border:1px solid var(--line-2); border-radius:var(--radius);
-  padding:clamp(1.5rem, 3vw, 2.2rem);
+  border:1px solid var(--line-2);
+  border-radius:var(--radius);
+  padding:clamp(1.7rem, 3.4vw, 2.8rem);
 }
 .aside-note .eyebrow{ color:var(--accent-2); }
+.aside-note h2{ margin-bottom:.9rem; max-width:20ch; }
 
 /* =====================================================================
-   11. CONTACT
+   14. CONTACT
    ===================================================================== */
-.contact-grid{ display:grid; gap:1.1rem; grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr)); }
-.contact-card{
-  background:var(--bg-2); border:1px solid var(--line-2); border-radius:var(--radius);
-  padding:1.3rem 1.4rem; display:flex; gap:.9rem; align-items:flex-start;
-  transition:border-color .18s, transform .2s var(--ease);
+.contact-grid{
+  display:grid; gap:1.1rem;
+  grid-template-columns:repeat(auto-fit, minmax(min(250px,100%), 1fr));
 }
-.contact-card:hover{ border-color:rgba(var(--accent-rgb),.4); transform:translateY(-3px); }
-.contact-card svg{ width:20px; height:20px; flex:none; color:var(--accent);
-                   fill:none; stroke:currentColor; stroke-width:1.7;
-                   stroke-linecap:round; stroke-linejoin:round; margin-top:.15rem; }
-.contact-card b{ display:block; font-size:.95rem; }
-.contact-card span{ font-size:.88rem; color:var(--ink-2); word-break:break-word; }
+.contact-card{
+  background:var(--bg-2);
+  border:1px solid var(--line-2);
+  border-radius:var(--radius);
+  padding:1.35rem 1.4rem;
+  display:flex; gap:.95rem; align-items:flex-start;
+  transition:border-color .2s, transform .24s var(--ease), background-color .2s;
+}
+.contact-card:hover{
+  border-color:rgba(var(--accent-rgb),.42);
+  background:var(--bg-3);
+  transform:translateY(-3px);
+}
+.contact-card svg{
+  width:20px; height:20px; flex:none; margin-top:.15rem;
+  color:var(--accent);
+  fill:none; stroke:currentColor; stroke-width:1.7;
+  stroke-linecap:round; stroke-linejoin:round;
+}
+.contact-card b{ display:block; font-size:.94rem; }
+.contact-card .v{
+  display:block;
+  font-family:var(--mono); font-size:.79rem; color:var(--ink-3);
+  word-break:break-word; margin-top:.1rem;
+}
+/* "Based in" is information, not a destination. It gets the same card so
+   the row stays even, but it is a div and does not pretend to be a link. */
+.contact-card.is-static{ cursor:default; }
+.contact-card.is-static:hover{
+  border-color:var(--line-2); background:var(--bg-2); transform:none;
+}
 
 /* =====================================================================
-   12. FOOTER
+   15. FOOTER
    ===================================================================== */
 .site-footer{
-  border-top:1px solid var(--line-2); padding-block:2.4rem;
-  margin-top:clamp(40px,7vw,80px);
+  border-top:1px solid var(--line-2);
+  padding-block:2.6rem;
+  margin-top:clamp(40px, 7vw, 80px);
 }
-.footer-inner{ display:flex; flex-wrap:wrap; gap:1rem; align-items:center; justify-content:space-between; }
-.site-footer p{ font-size:.86rem; color:var(--ink-3); }
-.footer-links{ display:flex; gap:1.2rem; }
-.footer-links a{ font-size:.86rem; color:var(--ink-2); }
+.footer-inner{
+  display:flex; flex-wrap:wrap; gap:1rem;
+  align-items:center; justify-content:space-between;
+}
+.site-footer p{ font-family:var(--mono); font-size:.75rem; color:var(--ink-3); letter-spacing:.03em; }
+.footer-links{ display:flex; flex-wrap:wrap; gap:1.3rem; }
+.footer-links a{ font-family:var(--mono); font-size:.75rem; color:var(--ink-2); letter-spacing:.03em; }
 .footer-links a:hover{ color:var(--accent); }
 
 /* =====================================================================
-   13. MOTION
+   16. MOTION
 
    One effect, used everywhere: content lifts a little as it arrives.
    Gated on html.js so that with scripts off nothing is ever left
-   invisible, and switched off entirely for reduced motion.
+   invisible, and switched off entirely under reduced motion.
    ===================================================================== */
 .reveal{ opacity:1; transform:none; }
 html.js .reveal{
-  opacity:0; transform:translateY(14px);
-  transition:opacity .5s var(--ease), transform .5s var(--ease);
+  opacity:0; transform:translateY(16px);
+  transition:opacity .55s var(--ease), transform .55s var(--ease);
 }
 html.js .reveal.in{ opacity:1; transform:none; }
-.reveal.d1{ transition-delay:.06s } .reveal.d2{ transition-delay:.12s }
-.reveal.d3{ transition-delay:.18s } .reveal.d4{ transition-delay:.24s }
+.reveal.d1{ transition-delay:.07s }
+.reveal.d2{ transition-delay:.14s }
+.reveal.d3{ transition-delay:.21s }
+.reveal.d4{ transition-delay:.28s }
 
 @media (prefers-reduced-motion:reduce){
   html{ scroll-behavior:auto; }
   html.js .reveal{ opacity:1; transform:none; transition:none; }
   .status i{ animation:none; }
+  .ticker-track{ animation:none; }
+  .project:hover{ transform:none; }
+  .project:hover .project-shot img{ transform:none; }
+  .btn:hover, .skill-group:hover, .contact-card:hover{ transform:none; }
 }
 
 /* =====================================================================
-   14. PRINT — the CV page
+   17. CV AND PRINT
 
    A CV is judged on paper as often as on screen. Everything decorative
    goes, the dark ground inverts to save toner, and links print their
-   destination so a printed copy is still usable.
+   destination so a printed copy is still usable on its own.
    ===================================================================== */
+/* These are <section> elements, so they inherit the global section
+   padding — which is sized for a landing page and leaves a CV looking
+   like it has holes in it. A CV wants tight, even blocks. */
+.cv-section{ padding-block:0; margin-bottom:2rem; }
+.cv-head{
+  padding-bottom:1.6rem;
+  border-bottom:1px solid var(--line-2);
+  margin-bottom:2.2rem;
+}
+.cv-head h1{ font-size:clamp(2rem,4vw,2.6rem); letter-spacing:-.04em; }
+.cv-contact{
+  margin-top:.8rem;
+  font-family:var(--mono); font-size:.8rem; color:var(--ink-3);
+  display:flex; flex-wrap:wrap; gap:.4rem 1.2rem;
+}
+.cv-contact a:hover{ color:var(--accent); }
+
 @media print{
-  :root{
-    --bg:#fff; --bg-2:#fff; --bg-3:#fff;
-    --ink:#000; --ink-2:#222; --ink-3:#555;
-    --accent:#000; --line:#bbb; --line-2:#ddd;
+  :root, :root[data-theme="dark"], :root[data-theme="light"]{
+    --bg:#fff; --bg-2:#fff; --bg-3:#fff; --bg-4:#fff;
+    --ink:#000; --ink-2:#1a1a1a; --ink-3:#555; --ink-4:#888;
+    --accent:#000; --accent-2:#000;
+    --line:#bbb; --line-2:#ddd; --grid:transparent;
   }
-  .site-header, .site-footer, .no-print, .hero-cta, .icon-btn{ display:none !important; }
-  body{ font-size:11pt; }
+  .backdrop, .site-header, .site-footer, .no-print,
+  .hero-cta, .icon-btn, .ticker, .mobile-nav{ display:none !important; }
+  body{ font-size:10.5pt; background:#fff; }
   section{ padding-block:0 !important; }
-  .cv-section{ break-inside:avoid; page-break-inside:avoid; }
-  a[href^="http"]::after{ content:" (" attr(href) ")"; font-size:9pt; color:#555; }
-  .card, .project, .contact-card{ border:1px solid #ccc !important; box-shadow:none !important; }
+  .h-display em{
+    background:none !important;
+    -webkit-text-fill-color:#000 !important; color:#000 !important;
+  }
+  /* Only an individual job resists splitting. Applying this to the whole
+     Experience section pushed all of it onto page two and left most of
+     page one blank, which is the opposite of what a CV wants. */
+  .role{ break-inside:avoid; page-break-inside:avoid; }
+  .cv-head{ break-after:avoid; page-break-after:avoid; }
+  .eyebrow{ break-after:avoid; page-break-after:avoid; }
+  a[href^="http"]::after{ content:" (" attr(href) ")"; font-size:8.5pt; color:#555; }
+  .project, .contact-card, .skill-group{ border:1px solid #ccc !important; box-shadow:none !important; }
 }

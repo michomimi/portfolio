@@ -1,21 +1,73 @@
 /* =====================================================================
-   MOTION.JS — scroll reveal, and the active link in the header
+   MOTION.JS — scroll reveal, counting numbers, header state, active link
 
    Deliberately small. A portfolio that stutters while someone scrolls it
-   argues against the person who built it, so this uses an observer
-   rather than a scroll handler and does nothing under reduced motion.
+   argues against the person who built it, so everything here is driven
+   by IntersectionObserver rather than a scroll handler, and every effect
+   is switched off under prefers-reduced-motion.
    ===================================================================== */
 (function motion() {
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const qa = (s) => [...document.querySelectorAll(s)];
 
   /* Content injected by app.js does not exist yet when this file runs, so
-     the reveal is set up after that has finished rather than on load. */
+     everything is set up after that has finished rather than on load. */
   document.addEventListener("DOMContentLoaded", () => {
+
+    /* ---------- header: draw its underline only once the page moves ----
+       One boolean toggled from a passive listener. Cheap enough that it
+       runs even under reduced motion, because it is state, not motion. */
+    const header = document.querySelector(".site-header");
+    if (header) {
+      const onScroll = () => header.classList.toggle("is-stuck", window.scrollY > 8);
+      addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+    }
+
+    /* ---------- counting numbers ----------
+       Counts to the value in data-count over ~1.5s, eased so it slows as
+       it lands. Runs once, when the number first comes into view. */
+    const counters = qa("[data-count]");
+
+    const runCount = (el) => {
+      const target = parseFloat(el.dataset.count);
+      if (!isFinite(target)) return;
+      /* Match the source's decimal places, so 99.9 does not land on 100. */
+      const dp = (String(el.dataset.count).split(".")[1] || "").length;
+      const dur = 1500;
+      let t0 = null, done = false;
+
+      const land = () => { done = true; el.textContent = target.toFixed(dp); };
+
+      const tick = (now) => {
+        if (done) return;
+        if (t0 === null) t0 = now;
+        const p = Math.min((now - t0) / dur, 1);
+        const eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        if (p < 1) { el.textContent = (target * eased).toFixed(dp); requestAnimationFrame(tick); }
+        else land();                                    // exact on the last frame
+      };
+      requestAnimationFrame(tick);
+
+      /* Safety net. Browsers throttle or suspend rAF for pages they think
+         are not visible, and a counter frozen at 83 on the way to 100 does
+         not read as an animation — it reads as a broken number. A timer
+         is not subject to the same suspension, so the figure always ends
+         up correct even if the animation never gets to finish. */
+      setTimeout(land, dur + 150);
+    };
+
+    /* ---------- scroll reveal ---------- */
     const items = qa(".reveal");
 
     if (reduce || !("IntersectionObserver" in window)) {
       items.forEach((el) => el.classList.add("in"));
+      counters.forEach((el) => {
+        const v = parseFloat(el.dataset.count);
+        el.textContent = isFinite(v)
+          ? v.toFixed((String(el.dataset.count).split(".")[1] || "").length)
+          : el.dataset.count;
+      });
       return;
     }
 
@@ -29,6 +81,16 @@
 
     items.forEach((el) => io.observe(el));
 
+    const countIo = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        runCount(e.target);
+        countIo.unobserve(e.target);
+      });
+    }, { threshold: 0.4 });
+
+    counters.forEach((el) => countIo.observe(el));
+
     /* Anything already on screen at first paint is shown immediately.
        Without this, whatever sits in the bottom sliver of the viewport
        stays invisible until the visitor happens to scroll. */
@@ -38,9 +100,13 @@
       });
     });
 
-    /* Header link for the section currently in view. */
-    const links = qa(".nav a");
+    /* ---------- active header link for the section in view ----------
+       Only same-page fragment links take part. Elsewhere the nav points
+       at "index.html#work", which is not a valid selector and would
+       throw rather than politely return nothing. */
+    const links = qa(".nav a").filter((a) => (a.getAttribute("href") || "").startsWith("#"));
     if (!links.length) return;
+
     const sections = links
       .map((a) => document.querySelector(a.getAttribute("href")))
       .filter(Boolean);

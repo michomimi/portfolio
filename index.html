@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Micheal Jabour · Full-stack developer</title>
 <meta name="description" content="Full-stack developer in Calgary. E-commerce platforms, internal tools and the operations behind them. Selected work, experience and CV.">
-<meta name="theme-color" content="#0B0D10">
+<meta name="theme-color" content="#07090C">
 
 <!-- Theme is set before the stylesheet paints, otherwise someone on the
      light theme gets a flash of dark on every page load. Inline and
@@ -21,13 +21,18 @@ setTimeout(function(){if(!document.querySelector(".reveal.in")){d.classList.remo
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=1">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=2">
 
-<link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/icon-180.png">
-<link rel="manifest" href="/site.webmanifest">
+<!-- Relative, not root-absolute. This is a GitHub Pages project site
+     served under /portfolio/, so a bare "/favicon.ico" asks
+     michomimi.github.io for a file that is not there — every icon here
+     was a 404 until this was corrected. Relative also means the icons
+     still resolve when you run the site locally at the server root. -->
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="manifest" href="site.webmanifest">
 
 <link rel="canonical" href="https://michomimi.github.io/portfolio/">
 <meta property="og:type" content="profile">
@@ -46,9 +51,30 @@ setTimeout(function(){if(!document.querySelector(".reveal.in")){d.classList.remo
 
 <main id="main">
 
-  <!-- ================= HERO ================= -->
+  <!-- ================= HERO =================
+       Two columns: the claim on the left, and profile.json on the right.
+       The card is a portrait substitute — it establishes what this person
+       does in about a second, which a paragraph cannot do. -->
   <section class="hero">
-    <div class="wrap" data-hero></div>
+    <div class="wrap">
+      <div class="hero-grid">
+        <div data-hero></div>
+        <div data-code></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= STACK TICKER =================
+       Decoration, but honest decoration: it is rendered from the same
+       skills object as the Toolkit section, so it can never advertise
+       something the page does not otherwise claim. -->
+  <div class="ticker" aria-hidden="true" data-ticker></div>
+
+  <!-- ================= NUMBERS ================= -->
+  <section class="stats-sec">
+    <div class="wrap">
+      <div class="stats" data-stats></div>
+    </div>
   </section>
 
   <!-- ================= WORK ================= -->
@@ -57,12 +83,15 @@ setTimeout(function(){if(!document.querySelector(".reveal.in")){d.classList.remo
       <div class="sec-head reveal">
         <p class="eyebrow">Selected work</p>
         <h2>Things I have designed, built and shipped</h2>
-        <p>Every one of these is live and the code is public. I would rather show
-          you something running than describe something finished.</p>
+        <p>Each one links to the live site, and to the source wherever that is
+          public. I would rather show you something running than describe
+          something finished.</p>
       </div>
       <div class="grid grid-2" data-projects></div>
     </div>
   </section>
+
+  <hr class="rule">
 
   <!-- ================= EXPERIENCE ================= -->
   <section id="experience">
@@ -75,10 +104,12 @@ setTimeout(function(){if(!document.querySelector(".reveal.in")){d.classList.remo
     </div>
   </section>
 
+  <hr class="rule">
+
   <!-- ================= ABOUT ================= -->
   <section id="about">
     <div class="wrap">
-      <div class="grid grid-2" style="gap:clamp(2rem,5vw,4rem); align-items:start">
+      <div class="about-grid">
         <div class="reveal">
           <p class="eyebrow">About</p>
           <h2>A bit of background</h2>
@@ -105,7 +136,7 @@ setTimeout(function(){if(!document.querySelector(".reveal.in")){d.classList.remo
     <div class="wrap">
       <div class="aside-note reveal">
         <p class="eyebrow">Outside the day job</p>
-        <h2 style="margin-bottom:.8rem">I DJ, and I built the business around it</h2>
+        <h2>I DJ, and I built the business around it</h2>
         <p class="lead">
           I play open-format around Calgary, in English and Arabic, mostly weddings
           and private events. It is also where a lot of my engineering practice comes
@@ -133,7 +164,7 @@ setTimeout(function(){if(!document.querySelector(".reveal.in")){d.classList.remo
 
 </main>
 
-<script src="js/app.js?v=1" defer></script>
-<script src="js/motion.js?v=1" defer></script>
+<script src="js/app.js?v=2" defer></script>
+<script src="js/motion.js?v=2" defer></script>
 </body>
 </html>

@@ -2,12 +2,12 @@
   "name": "Micheal Jabour",
   "short_name": "MJ",
   "description": "Full-stack developer in Calgary.",
-  "start_url": "/portfolio/",
+  "start_url": "./",
   "display": "standalone",
-  "background_color": "#0B0D10",
-  "theme_color": "#0B0D10",
+  "background_color": "#07090C",
+  "theme_color": "#07090C",
   "icons": [
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
   ]
 }
