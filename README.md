@@ -57,8 +57,9 @@ in an interview. Cut what you would not want to be asked about.
 
 ```
 index.html        the portfolio itself
-resume.html       printable CV, built from the same PROFILE
+resume.html       the resume, built from the same PROFILE
 404.html          not-found page
+Micheal-Jabour-Resume.pdf    generated from resume.html
 css/styles.css    the whole design system, one file, commented by section
 js/app.js         PROFILE plus the renderers that build each page
 js/motion.js      scroll reveal and the active nav link
@@ -125,10 +126,40 @@ resolve against whatever the visitor mistyped.
   paints, so the page never flashes the wrong colour.
 - **Reduced motion is respected.** Everything that moves is switched off
   for anyone who has asked their system for less animation.
-- **The CV prints properly.** `resume.html` has a print stylesheet that
+- **The resume prints properly.** `resume.html` has a print stylesheet that
   strips the navigation, inverts the dark ground to save toner, and
   prints link destinations so a paper copy is still usable. "Print or
   save PDF" in the header is how you produce a PDF to attach to an
   application.
 - **No analytics, no cookies, no third-party scripts.** The only outside
   request is the webfont.
+
+
+---
+
+## Regenerating the resume files
+
+Both downloads are generated, never hand-edited — edit `PROFILE` and
+rebuild, or the resume and the site will start disagreeing with each
+other. The site must be running locally first.
+
+```bash
+python3 -m http.server 8080
+
+# PDF: printed from resume.html, so it inherits the print stylesheet
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --headless=new --no-pdf-header-footer \
+  --print-to-pdf="Micheal-Jabour-Resume.pdf" \
+  http://127.0.0.1:8080/resume.html
+```
+
+The site offers the PDF only. `PROFILE.links.resumeDocx` is empty on
+purpose, and the Word button is omitted whenever it is — a .docx hands
+an employer an editable file whose layout drifts between Word versions.
+A Word copy can still be generated for your own use; it just does not
+ship with the site.
+
+Projects carry an optional `short` field. The site shows the full
+`blurb`; the resume uses `short` where it exists, because a paragraph
+that reads well on a web page costs a resume most of a page. Without the
+short versions this runs to three pages instead of two.

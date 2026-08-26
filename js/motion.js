@@ -111,11 +111,42 @@
       .map((a) => document.querySelector(a.getAttribute("href")))
       .filter(Boolean);
 
+    /* ---------- the travelling light behind the nav ----------
+       A single element that slides to whichever link is current, and
+       follows the pointer on hover before returning to the section you
+       are actually in. */
+    const glow = document.querySelector(".nav-glow");
+    let current = null;
+
+    const moveTo = (el) => {
+      if (!glow || !el) return;
+      /* offsetLeft is measured against .nav, which is position:relative
+         and therefore the offset parent. */
+      glow.style.width = el.offsetWidth + "px";
+      glow.style.transform = `translateX(${el.offsetLeft}px)`;
+      glow.classList.add("on");
+    };
+    const restore = () => (current ? moveTo(current) : glow && glow.classList.remove("on"));
+
+    links.forEach((a) => a.addEventListener("mouseenter", () => moveTo(a)));
+    const navEl = document.querySelector(".nav");
+    if (navEl) navEl.addEventListener("mouseleave", restore);
+
+    /* Links shift when the viewport resizes, and a glow left at the old
+       coordinates would sit under nothing. */
+    let rt;
+    addEventListener("resize", () => {
+      clearTimeout(rt);
+      rt = setTimeout(restore, 120);
+    }, { passive: true });
+
     const spy = new IntersectionObserver((entries) => {
       entries.forEach((e) => {
         if (!e.isIntersecting) return;
         links.forEach((a) => a.classList.toggle("is-active",
           a.getAttribute("href") === "#" + e.target.id));
+        current = links.find((a) => a.classList.contains("is-active")) || null;
+        if (!navEl || !navEl.matches(":hover")) restore();
       });
     }, { rootMargin: "-45% 0px -50% 0px" });
 

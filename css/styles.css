@@ -49,7 +49,7 @@
 
   --ink:     #EDF1F7;
   --ink-2:   rgba(237,241,247,.70);
-  --ink-3:   rgba(237,241,247,.44);
+  --ink-3:   rgba(237,241,247,.86);   /* was .44 — see the note on .nav a */
   --ink-4:   rgba(237,241,247,.24);
 
   /* One accent carries links, active states and every number. Electric
@@ -89,39 +89,6 @@
   --header-h: 64px;
 }
 
-/* Light theme, for daylight and for printing. Not an inversion: the
-   accent has to change hue-brightness or it disappears on white. */
-:root[data-theme="light"]{
-  color-scheme: light;
-  --bg:      #FAFBFD;
-  --bg-2:    #FFFFFF;
-  --bg-3:    #F1F4F8;
-  --bg-4:    #E6EBF2;
-
-  --ink:     #0A0E14;
-  --ink-2:   rgba(10,14,20,.72);
-  --ink-3:   rgba(10,14,20,.50);
-  --ink-4:   rgba(10,14,20,.30);
-
-  /* The same cyan is unreadable on white, so the light theme gets a
-     deep teal-blue. Same family, 7:1 on the ground, still not corporate. */
-  --accent:      #0E7490;
-  --accent-rgb:  14, 116, 144;
-  --accent-2:    #6D28D9;
-  --accent-2-rgb: 109, 40, 217;
-  --accent-ink:  #FFFFFF;
-
-  --ok:      #12915C;
-
-  --line:    rgba(10,14,20,.15);
-  --line-2:  rgba(10,14,20,.08);
-  --grid:    rgba(10,14,20,.05);
-
-  --t-key:   #6D28D9;
-  --t-str:   #0E7490;
-  --t-num:   #B45309;
-  --t-punc:  rgba(10,14,20,.38);
-}
 
 /* =====================================================================
    2. RESET AND BASE
@@ -276,25 +243,67 @@ section{ padding-block:clamp(52px, 7.5vw, 96px); position:relative; }
   color:var(--accent-ink);
   background:linear-gradient(140deg, var(--accent), var(--accent-2));
 }
-.brand span{ color:var(--accent); }
+/* One element, so the flex gap above lands between the badge and the
+   name and nowhere else. */
+.brand-name{ white-space:nowrap; }
 
-.nav{ display:flex; gap:.3rem; margin-inline-start:auto; }
+/* The full name is wider than a first name was, and the nav sits right
+   beside it. Below this the badge carries the identity on its own. */
+@media (max-width:1040px){
+  .brand-name{ display:none; }
+}
+
+.nav{ display:flex; gap:.3rem; margin-inline-start:auto; position:relative; }
 .nav a{
-  position:relative;
+  position:relative; z-index:1;
   font-family:var(--mono); font-size:.78rem; letter-spacing:.04em;
-  color:var(--ink-3);
+  /* ink-3 sat at about 3.9:1 on this ground, under the 4.5:1 minimum for
+     text this size and visibly dim with it. ink-2 clears 8.6:1 and still
+     leaves the active link somewhere brighter to go. */
+  color:var(--ink-2);
   padding:.4rem .7rem; border-radius:var(--radius-xs);
-  transition:color .16s, background-color .16s;
+  transition:color .2s, text-shadow .3s;
 }
 .nav a::before{
   content:attr(data-i);
   color:var(--accent); opacity:0;
   margin-inline-end:.35rem;
-  transition:opacity .16s;
+  transition:opacity .2s;
 }
-.nav a:hover{ color:var(--ink); background:var(--bg-3); }
-.nav a.is-active{ color:var(--ink); background:var(--bg-3); }
+.nav a:hover, .nav a.is-active{ color:var(--ink); }
+.nav a.is-active{ text-shadow:0 0 14px rgba(var(--accent-rgb),.45); }
 .nav a.is-active::before{ opacity:1; }
+
+/* ---- the travelling light ----
+   One element for the whole nav rather than a background per link, so it
+   slides from the old position to the new one instead of one pill fading
+   out while another fades in. Its position is set from JS in device
+   pixels; everything else here is just how it glows. */
+.nav-glow{
+  position:absolute; top:0; bottom:0; left:0; width:0;
+  border-radius:var(--radius-xs);
+  background:linear-gradient(180deg,
+    rgba(var(--accent-rgb),.16), rgba(var(--accent-rgb),.04));
+  box-shadow:
+    inset 0 0 0 1px rgba(var(--accent-rgb),.3),
+    0 0 22px -6px rgba(var(--accent-rgb),.75);
+  opacity:0; pointer-events:none;
+  transition:transform .4s var(--ease), width .4s var(--ease), opacity .3s;
+}
+/* the bright filament along the bottom edge */
+.nav-glow::after{
+  content:""; position:absolute; bottom:-1px; left:16%; right:16%;
+  height:1.5px; border-radius:2px;
+  background:var(--accent);
+  box-shadow:0 0 10px 1px rgba(var(--accent-rgb),.85);
+}
+.nav-glow.on{ opacity:1; }
+
+/* Reduced motion keeps the indicator, drops the travel. */
+@media (prefers-reduced-motion:reduce){
+  .nav-glow{ transition:opacity .2s; }
+  .nav a.is-active{ text-shadow:none; }
+}
 
 .header-actions{ display:flex; align-items:center; gap:.55rem; margin-inline-start:auto; }
 .nav + .header-actions{ margin-inline-start:1.2rem; }
@@ -830,8 +839,12 @@ section{ padding-block:clamp(52px, 7.5vw, 96px); position:relative; }
 .contact-card b{ display:block; font-size:.94rem; }
 .contact-card .v{
   display:block;
-  font-family:var(--mono); font-size:.79rem; color:var(--ink-3);
-  word-break:break-word; margin-top:.1rem;
+  /* Sized so the longest value here — the email — sits on one line at
+     the width these cards get in a four-across row. It was breaking
+     mid-address before, which reads as a typo rather than a wrap. */
+  font-family:var(--mono); font-size:.72rem; color:var(--ink-3);
+  letter-spacing:-.01em;
+  word-break:break-word; margin-top:.15rem;
 }
 /* "Based in" is information, not a destination. It gets the same card so
    the row stays even, but it is a div and does not pretend to be a link. */
@@ -893,9 +906,56 @@ html.js .reveal.in{ opacity:1; transform:none; }
    destination so a printed copy is still usable on its own.
    ===================================================================== */
 /* These are <section> elements, so they inherit the global section
-   padding — which is sized for a landing page and leaves a CV looking
-   like it has holes in it. A CV wants tight, even blocks. */
-.cv-section{ padding-block:0; margin-bottom:2rem; }
+   padding — which is sized for a landing page and leaves a resume looking
+   like it has holes in it. A resume wants tight, even blocks.
+
+   Each section is a framed block: on a page with no colour and no
+   photography, a border is what tells the eye where one part stops and
+   the next begins. The heading sits inside its own frame. */
+.cv-section{
+  padding:1rem 1.2rem 1.1rem;
+  margin-bottom:1rem;
+  border:1px solid var(--line-2);
+  border-radius:var(--radius-s);
+}
+.cv-section > .eyebrow{ margin-bottom:.85rem; }
+
+/* Projects are a single column, unlike jobs. They have no date to put in
+   a left rail, and forcing one there is what pushed a long project URL
+   out of its column and across the body text next to it. */
+.cv-items{ display:flex; flex-direction:column; }
+.cv-item{
+  padding-block:.85rem;
+  border-top:1px solid var(--line-2);
+}
+.cv-item:first-child{ border-top:0; padding-top:0; }
+.cv-item:last-child{ padding-bottom:0; }
+.cv-item h3{ font-size:1.06rem; }
+.cv-item-link{
+  font-family:var(--mono); font-size:.78rem; font-weight:400;
+  color:var(--accent); letter-spacing:.01em;
+  /* Long URLs break rather than run out of the box. */
+  overflow-wrap:anywhere; word-break:break-word;
+}
+.cv-item-link:hover{ text-decoration:underline; text-underline-offset:3px; }
+.cv-item-sub{
+  font-family:var(--mono); font-size:.78rem; color:var(--ink-3);
+  margin-top:.2rem; letter-spacing:.02em;
+}
+.cv-item ul{ margin-top:.55rem; display:flex; flex-direction:column; gap:.35rem; }
+.cv-item li{
+  color:var(--ink-2); font-size:.94rem;
+  padding-inline-start:1.1rem; position:relative;
+}
+.cv-item li::before{
+  content:""; position:absolute; inset-inline-start:0; top:.6em;
+  width:5px; height:5px; border-radius:1px;
+  background:var(--accent); opacity:.7; transform:rotate(45deg);
+}
+.cv-item-stack{
+  margin-top:.5rem;
+  font-family:var(--mono); font-size:.76rem; color:var(--ink-3);
+}
 .cv-head{
   padding-bottom:1.6rem;
   border-bottom:1px solid var(--line-2);
@@ -903,33 +963,192 @@ html.js .reveal.in{ opacity:1; transform:none; }
 }
 .cv-head h1{ font-size:clamp(2rem,4vw,2.6rem); letter-spacing:-.04em; }
 .cv-contact{
-  margin-top:.8rem;
-  font-family:var(--mono); font-size:.8rem; color:var(--ink-3);
-  display:flex; flex-wrap:wrap; gap:.4rem 1.2rem;
+  margin-top:.85rem;
+  font-size:.84rem; color:var(--ink-3);
+  display:flex; flex-wrap:wrap; align-items:baseline; gap:.15rem .55rem;
 }
-.cv-contact a:hover{ color:var(--accent); }
+.cv-contact i{ font-style:normal; color:var(--ink-4); }
+.cv-contact a{ color:var(--accent); overflow-wrap:anywhere; }
+.cv-contact a:hover{ text-decoration:underline; text-underline-offset:3px; }
+
+/* The links block at the foot of the resume. Same shape as the contact
+   row that used to sit in the header, now that it lives down here. */
+.cv-links{
+  display:flex; flex-wrap:wrap; align-items:baseline; gap:.15rem .55rem;
+  font-size:.84rem;
+}
+.cv-links i{ font-style:normal; color:var(--ink-4); }
+.cv-links a{ color:var(--accent); overflow-wrap:anywhere; }
+.cv-links a:hover{ text-decoration:underline; text-underline-offset:3px; }
+
+/* =====================================================================
+   THE SHEEN
+
+   A band of white travelling slowly through the text. It is painted as a
+   moving gradient clipped to the glyphs, so the letters themselves carry
+   the light rather than sitting behind a highlight.
+
+   Applied only to short labels — section eyebrows, the note under each
+   number, the footer line. Running it through body copy would make the
+   page hard to read, which is the opposite of the point.
+   ===================================================================== */
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  .eyebrow, .stat-note, .site-footer p{
+    /* currentColor at both ends means each element keeps its own colour
+       and only the crest of the wave is white. */
+    background-image:linear-gradient(100deg,
+      currentColor 0%, currentColor 40%,
+      #FFFFFF 50%,
+      currentColor 60%, currentColor 100%);
+    background-size:300% 100%;
+    background-repeat:no-repeat;
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent;
+    animation:sheen 7s linear infinite;
+  }
+  /* Offset so they do not all crest at the same moment. */
+  .stat-note{ animation-duration:8s; animation-delay:-2s; }
+  .site-footer p{ animation-duration:9s; animation-delay:-4s; }
+  .stat:nth-child(2) .stat-note{ animation-delay:-3.4s; }
+  .stat:nth-child(3) .stat-note{ animation-delay:-4.8s; }
+  .stat:nth-child(4) .stat-note{ animation-delay:-6.2s; }
+}
+/* For a background wider than its box, percentage positions do not mean
+   "shift by n%" — 0% aligns the image's left edge with the box's left,
+   and 100% aligns their right edges. The whole travel therefore lives
+   between 0% and 100%, and anything outside slides the gradient off the
+   text, which with no-repeat leaves those letters painted with nothing
+   at all. The white crest sits mid-image and crosses once per cycle. */
+@keyframes sheen{
+  from{ background-position:100% 0; }
+  to  { background-position:0% 0; }
+}
+
+/* No animation means no clipped gradient either: frozen mid-sweep it
+   would leave half a word white for good. */
+@media (prefers-reduced-motion:reduce){
+  .eyebrow, .stat-note, .site-footer p{
+    background-image:none;
+    -webkit-text-fill-color:currentColor;
+    animation:none;
+  }
+}
 
 @media print{
-  :root, :root[data-theme="dark"], :root[data-theme="light"]{
+  /* ------------------------------------------------------------------
+     The printed resume is its own design, not the dark site bleached.
+     A restrained blue does the work colour is actually good for here:
+     marking the section bars, the employer names and the links, so a
+     reader can find their way around the page without reading it. Any
+     stronger and it stops looking like a document.
+     ------------------------------------------------------------------ */
+  :root{
     --bg:#fff; --bg-2:#fff; --bg-3:#fff; --bg-4:#fff;
-    --ink:#000; --ink-2:#1a1a1a; --ink-3:#555; --ink-4:#888;
-    --accent:#000; --accent-2:#000;
-    --line:#bbb; --line-2:#ddd; --grid:transparent;
+    --ink:#101B26; --ink-2:#243444; --ink-3:#5A6C7D; --ink-4:#93A3B2;
+    --accent:#1A6FB5; --accent-2:#1A6FB5;
+    --line:#BBCEDD; --line-2:#D3E1EC; --grid:transparent;
+  }
+  /* Browsers drop background fills when printing unless told otherwise,
+     and the section bars are backgrounds. */
+  *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+
+  /* Clipped gradient text prints as nothing. Undo it before anything
+     reaches paper. */
+  .eyebrow, .stat-note, .site-footer p{
+    background-image:none !important;
+    -webkit-text-fill-color:currentColor !important;
+    animation:none !important;
   }
   .backdrop, .site-header, .site-footer, .no-print,
   .hero-cta, .icon-btn, .ticker, .mobile-nav{ display:none !important; }
-  body{ font-size:10.5pt; background:#fff; }
+  body{ font-size:9.5pt; line-height:1.4; background:#fff; color:var(--ink-2); }
   section{ padding-block:0 !important; }
-  .h-display em{
-    background:none !important;
-    -webkit-text-fill-color:#000 !important; color:#000 !important;
+  @page{ margin:14mm 13mm; }
+
+  /* ---------------- header ---------------- */
+  .cv-head{
+    padding-bottom:.6rem; margin-bottom:.7rem;
+    border-bottom:2px solid var(--accent) !important;
   }
-  /* Only an individual job resists splitting. Applying this to the whole
-     Experience section pushed all of it onto page two and left most of
-     page one blank, which is the opposite of what a CV wants. */
-  .role{ break-inside:avoid; page-break-inside:avoid; }
-  .cv-head{ break-after:avoid; page-break-after:avoid; }
-  .eyebrow{ break-after:avoid; page-break-after:avoid; }
-  a[href^="http"]::after{ content:" (" attr(href) ")"; font-size:8.5pt; color:#555; }
+  .cv-head h1{ font-size:23pt; color:#0D2436; letter-spacing:-.02em; }
+  .cv-head .lead{
+    font-size:10.5pt; color:var(--accent) !important;
+    margin-top:.15rem !important; font-weight:500;
+  }
+  .cv-contact{
+    margin-top:.45rem; font-size:8.7pt; gap:.1rem .45rem;
+    color:var(--ink-3);
+  }
+  .cv-contact a{ color:var(--accent); text-decoration:none; }
+  .cv-links{ font-size:8.7pt; gap:.1rem .45rem; }
+  .cv-links a{ color:var(--accent); text-decoration:none; }
+  .cv-links i{ color:#B7C6D4; }
+  .cv-contact i{ color:#B7C6D4; }
+
+  /* ---------------- framed sections ----------------
+     Each block is a bordered card with a tinted bar across the top. The
+     bar is what makes the page scannable: five labelled containers
+     instead of one undifferentiated column of text. */
+  .cv-section{
+    margin-bottom:.5rem;
+    padding:0 .55rem .5rem;
+    border:1px solid #C3D7E6 !important;
+    border-radius:4px;
+    break-inside:auto; page-break-inside:auto;
+    /* A section may run past a page break, and without this the frame is
+       left hanging open — sides continuing, no bottom edge. `clone` gives
+       each fragment its own complete border. */
+    -webkit-box-decoration-break:clone;
+            box-decoration-break:clone;
+  }
+  .cv-section > .eyebrow{
+    margin:0 -.55rem .45rem;
+    padding:.28rem .55rem;
+    background:#EDF5FB;
+    border-bottom:1px solid #C3D7E6;
+    border-radius:3px 3px 0 0;
+    color:var(--accent);
+    font-size:7.8pt; font-weight:600; letter-spacing:.16em;
+    display:block;
+  }
+  /* the decorative dash belongs to the site, not to a document */
+  .cv-section > .eyebrow::before{ display:none; }
+
+  /* ---------------- jobs ---------------- */
+  .role{
+    padding-block:.42rem;
+    grid-template-columns:minmax(0,138px) minmax(0,1fr);
+    gap:.8rem;
+    border-top:1px solid var(--line-2);
+  }
+  .role h3{ font-size:10.5pt; color:#0D2436; }
+  .role-at{ font-size:9pt; margin-top:.02rem; color:var(--accent); font-weight:500; }
+  .role-when{ font-size:8.3pt; padding-top:.12rem; color:var(--ink-3); }
+  .role-when b{ color:#0D2436; font-weight:600; display:block; }
+  .role ul{ margin-top:.3rem; gap:.16rem; }
+  .role li{ font-size:9.3pt; padding-inline-start:.8rem; color:var(--ink-2); }
+  .role li::before{ top:.48em; width:3px; height:3px; background:var(--accent); opacity:1; }
+
+  /* ---------------- projects ---------------- */
+  .cv-item{ padding-block:.42rem; border-top:1px solid var(--line-2); }
+  .cv-item h3{ font-size:10.5pt; color:#0D2436; }
+  .cv-item-link{ font-size:8.3pt; color:var(--accent); }
+  .cv-item-sub{ font-size:8.3pt; margin-top:.06rem; color:var(--ink-3); }
+  .cv-item ul{ margin-top:.28rem; gap:.16rem; }
+  .cv-item li{ font-size:9.3pt; padding-inline-start:.8rem; color:var(--ink-2); }
+  .cv-item li::before{ top:.48em; width:3px; height:3px; background:var(--accent); opacity:1; }
+  .cv-item-stack{ font-size:8.3pt; margin-top:.24rem; color:var(--ink-3); }
+
+  /* ---------------- skills ---------------- */
+  .cv-section p b{ color:#0D2436; }
+
+  /* A job or a project should not be split across the page break; a
+     whole section may be, or Experience would jump to page two intact
+     and leave half of page one empty. */
+  .role, .cv-item{ break-inside:avoid; page-break-inside:avoid; }
+  .cv-head, .eyebrow{ break-after:avoid; page-break-after:avoid; }
+
+  /* Deliberately NOT printing href text after links: they stay clickable
+     in the PDF, and spelling every URL out cost most of a page. */
   .project, .contact-card, .skill-group{ border:1px solid #ccc !important; box-shadow:none !important; }
 }

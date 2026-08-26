@@ -4,25 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Page not found · Micheal Jabour</title>
-<meta name="description" content="Full-stack developer in Calgary. E-commerce platforms, internal tools and the operations behind them. Selected work, experience and CV.">
+<meta name="description" content="Full-stack developer in Calgary. E-commerce platforms, internal tools and the operations behind them. Selected work, experience and resume.">
 <meta name="theme-color" content="#07090C">
 
-<!-- Theme is set before the stylesheet paints, otherwise someone on the
-     light theme gets a flash of dark on every page load. Inline and
-     synchronous on purpose: an external file would run too late. -->
-<script>(function(){var d=document.documentElement;try{var t=localStorage.getItem("portfolio-theme");
-if(t!=="light"&&t!=="dark"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";}
-d.dataset.theme=t;}catch(e){d.dataset.theme="dark";}
-/* Turn the scroll reveal on. Set here, before first paint, so copy never
-   flashes in and then hides. The timer is the safety net: if nothing has
-   been revealed after 2.2s the class is dropped and everything shows. */
+<!-- The site is dark only, so there is no theme to resolve before paint.
+     This still runs inline and early for the reveal: the class is set
+     before first paint so copy never flashes in and then hides. The
+     timer is the safety net — if nothing has been revealed after 2.2s
+     the class is dropped and everything shows regardless. -->
+<script>(function(){var d=document.documentElement;
 d.className+=" js";
 setTimeout(function(){if(!document.querySelector(".reveal.in")){d.classList.remove("js");}},2200);})();</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=2">
+<link rel="stylesheet" href="css/styles.css?v=8">
 
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
@@ -51,12 +48,12 @@ setTimeout(function(){if(!document.querySelector(".reveal.in")){d.classList.remo
       <p class="lead">The link is wrong or the page has moved. Nothing is broken on your end.</p>
       <div class="hero-cta">
         <a class="btn btn-primary" href="/portfolio/">Back to the portfolio</a>
-        <a class="btn btn-ghost" href="/portfolio/resume.html">Read the CV</a>
+        <a class="btn btn-ghost" href="/portfolio/resume.html">Read the resume</a>
       </div>
     </div>
   </section>
 </main>
-<script src="js/app.js?v=2" defer></script>
-<script src="js/motion.js?v=2" defer></script>
+<script src="js/app.js?v=8" defer></script>
+<script src="js/motion.js?v=8" defer></script>
 </body>
 </html>

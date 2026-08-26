@@ -3,7 +3,7 @@
 
    Everything you are likely to change lives in PROFILE below. Both pages
    are built from it, so a detail is written once and appears everywhere
-   it belongs: the site, the CV, the hero's profile.json card, the page
+   it belongs: the site, the resume, the hero's profile.json card, the page
    titles and the structured data search engines read.
 
    Anything marked TODO is a placeholder and is not yet true.
@@ -22,6 +22,9 @@ const PROFILE = {
   tagline:   "I build and support the systems retail runs on: e-commerce platforms, internal tools and the operations behind them.",
   location:  "Calgary, Alberta",
   email:     "michel.jabour52@gmail.com",
+  /* Resume only. Deliberately not rendered on the public page: a phone
+     number sitting on an indexed page collects spam calls. */
+  phone:     "403-437-6153",
 
   /* Shown as a pill above the headline. Set `open` to false when you are
      not looking, and change the text to match. */
@@ -33,9 +36,16 @@ const PROFILE = {
      first developer role: recruiters search there before anywhere else. */
   links: {
     github:   "https://github.com/michomimi",
-    linkedin: "",                                  // TODO: add your LinkedIn URL
+    linkedin: "https://www.linkedin.com/in/micheal-jabour-329434255",
     website:  "https://djmishoo.ca",
-    cv:       "resume.html",
+    resume:   "resume.html",   // labelled "Resume" everywhere on the site
+    /* Downloadable copies, generated from this same PROFILE. Leave either
+       empty and its button is left out rather than 404ing. */
+    resumePdf:  "Micheal-Jabour-Resume.pdf",
+    /* Deliberately empty: employers get the PDF only. A .docx hands over
+       an editable file whose layout drifts between Word versions, and the
+       button is left out entirely rather than pointing at nothing. */
+    resumeDocx: "",
   },
 
   /* ---- NUMBERS ------------------------------------------------------
@@ -99,21 +109,11 @@ const PROFILE = {
      than adjectives. Every point below is a placeholder. */
   experience: [
     {
-      role:  "Operational Manager",
-      at:    "Kit and Ace",
-      when:  "Feb 2024 \u2014 present",
-      where: "Calgary, AB",
-      points: [
-        "Run back of house for a team of 10: inbound shipments, inventory, restock and the logistics that keep the floor stocked.",
-        "Rebuilt how back of house is organised \u2014 every item labelled and sorted into boxes and zoned sections \u2014 so staff find stock immediately instead of searching for it.",
-        "Before that, stock sat in unsorted piles and staff dug through them to find a size; now they walk straight to it.",
-      ],
-      stack: ["Operations", "Inventory", "Logistics", "Team of 10"],
-    },
-    {
       role:  "E-commerce Platform Support",
       at:    "Kit and Ace",
       when:  "May 2026 \u2014 present",
+      /* Held alongside the operations role below, not after it \u2014 hence the
+         overlapping dates. */
       where: "Remote",
       points: [
         "Helped build oneship.ca, a multi-carrier shipping platform for Canadian merchants, working alongside the development team on the site itself.",
@@ -123,16 +123,42 @@ const PROFILE = {
       stack: ["E-commerce", "Inventory flows", "QA and diagnostics", "Accessibility", "SEO"],
     },
     {
-      role:  "Founder and developer",
-      at:    "DJ Mishoo",
-      when:  "2026 — present",
+      role:  "Retail Operational Lead",
+      at:    "Kit and Ace",
+      when:  "Feb 2024 \u2014 present",
       where: "Calgary, AB",
       points: [
-        "Designed, built and shipped a bilingual English and Arabic site with no framework and no build step, deployed on GitHub Pages.",
-        "Built the booking tooling behind it: agreement, invoice and receipt generators, and planner sheets that email themselves.",
-        "Handled the whole stack of the thing: design, front end, accessibility, performance, SEO, content security policy and deployment.",
+        "Run back of house for a team of 10: inbound shipments, inventory, restock and the logistics that keep the floor stocked.",
+        "Rebuilt how back of house is organised \u2014 every item labelled and sorted into boxes and zoned sections \u2014 so staff find stock immediately instead of searching for it.",
+        "Before that, stock sat in unsorted piles and staff dug through them to find a size; now they walk straight to it.",
+        "Run special projects end to end, delivering them within scope, time and budget.",
+        "Manage resource allocation and budget, and identify process improvements that reduce operating costs.",
       ],
-      stack: ["JavaScript", "CSS", "Accessibility", "English and Arabic", "CI/CD"],
+      stack: ["Operations", "Inventory", "Logistics", "Team of 10"],
+    },
+    {
+      role:  "Retail Sales Associate",
+      at:    "Nordstrom",
+      when:  "Jul 2019 \u2014 Jul 2023",
+      where: "Calgary, AB",
+      points: [
+        "Curated wardrobes for a large repeat clientele against seasonal trends and individual budgets.",
+        "Built virtual vision boards with clients \u2014 the first thing that got me presenting a designed proposal to somebody and having to defend it.",
+        "Maintained displays and championed promotional lines to lift visibility and sales.",
+      ],
+      stack: ["Client service", "Merchandising"],
+    },
+    {
+      role:  "Business Development Representative",
+      at:    "Kmoon Inc",
+      when:  "May 2020 \u2014 Jul 2020",
+      where: "Calgary, AB",
+      points: [
+        "Wrote detailed client proposals and presented outcomes and financials to board members.",
+        "Analysed customer reviews and survey responses into a trend list that became the basis of a data project, then used it to propose fixes.",
+        "Ran outreach campaigns to previous clients and handled the business's data entry in Excel.",
+      ],
+      stack: ["Proposals", "Data analysis", "Excel"],
     },
   ],
 
@@ -143,12 +169,13 @@ const PROFILE = {
      now this list claims more than the projects below demonstrate. */
   skills: {
     "Languages":  ["JavaScript", "TypeScript", "Java", "HTML", "CSS", "SQL", "Python"],
-    "Front end":  ["React", "Next.js", "Responsive UI", "Accessibility", "Web performance"],
-    "Back end":   ["Node.js", "REST APIs", "PostgreSQL", "MongoDB", "Auth"],
-    /* From the Computer Information Systems side of things rather than the
-       three sites below. Six groups also sits as an even 3 x 2 on the
-       Toolkit grid, where five left a gap-toothed second row. */
-    "Systems":    ["Databases", "Networking infrastructure", "Linux"],
+    "Front end":  ["React", "Bootstrap", "Responsive UI", "Accessibility", "Web performance"],
+    /* Node.js sits with the systems material rather than under a "Back
+       end" heading of its own: one chip under its own title read as a
+       card that had failed to load, and drew the eye straight to the
+       gap. Everything here is still only what you would take a question
+       on \u2014 the row is smaller than it was, not padded back out. */
+    "Back end and systems": ["Node.js", "MySQL", "Oracle", "Networking infrastructure", "Linux"],
     "E-commerce": ["Shopify", "Order and inventory flows", "Payments", "Platform support"],
     "Tools":      ["Git", "GitHub Actions", "VS Code", "Figma", "Vercel"],
   },
@@ -165,6 +192,7 @@ const PROFILE = {
       name: "DJ Mishoo",
       role: "Design, build and deploy",
       blurb: "A bilingual booking site for a Calgary DJ. English and Arabic with full right-to-left support, a document generator that produces agreements, invoices and receipts in the browser, and planner sheets clients fill in and send. No framework, no build step, and it scores clean on performance and accessibility.",
+      short: "Bilingual English and Arabic booking site with an in-browser generator for agreements, invoices and receipts. No framework, no build step.",
       stack: ["JavaScript", "CSS", "English and Arabic", "GitHub Pages", "CSP"],
       live: "https://djmishoo.ca",
       code: "https://github.com/michomimi/micheals-new-dj-website",
@@ -174,6 +202,7 @@ const PROFILE = {
       name: "OneShip",
       role: "Build collaboration and site audit",
       blurb: "A multi-carrier shipping platform for Canadian merchants, built over roughly a year with the development team. I worked on the site itself and on the online inventory flow, then ran a five-part inspection of the result \u2014 user experience, technical, accessibility, SEO and security \u2014 producing around thirty-five rated findings, each paired with a recommended fix.",
+      short: "Multi-carrier shipping platform for Canadian merchants. Worked on the build with the development team, then audited UX, technical, accessibility, SEO and security \u2014 around thirty-five rated findings.",
       /* These chips describe the work, not the technology: the repo is no
          longer accessible, so the app's actual stack is not something I
          can state. Add it if you remember it. */
@@ -183,9 +212,20 @@ const PROFILE = {
       shot: "",
     },
     {
+      name: "Toy Company Storefront",
+      role: "University project \u00b7 Java",
+      blurb: "A simulated toy company front end built in Java, with a full graphical interface for browsing and ordering stock. Coursework rather than client work, but it is where the object-oriented side of the degree turned into something that runs \u2014 and the only desktop application among these.",
+      short: "Java desktop application with a full graphical interface for browsing and ordering stock. University coursework.",
+      stack: ["Java", "OOP", "GUI"],
+      live: "",
+      code: "",                                      // TODO: push it to GitHub and link it here
+      shot: "",
+    },
+    {
       name: "Royal Bake",
       role: "Design and build",
       blurb: "A Mediterranean restaurant in northeast Calgary. Six pages and a menu of 104 dishes across ten categories, every one named in both English and Arabic, with per-size pricing and an order cart. Built to be read on a phone at the table, and to hand off to DoorDash, Skip or Uber Eats without getting in the way.",
+      short: "Restaurant site with a 104-dish menu across ten categories, English and Arabic, per-size pricing and an order cart.",
       stack: ["JavaScript", "CSS", "English and Arabic", "GitHub Pages"],
       live: "https://michomimi.github.io/royal-bake/",
       code: "https://github.com/michomimi/royal-bake",
@@ -194,15 +234,15 @@ const PROFILE = {
   ],
 
   /* ---- EDUCATION AND CERTIFICATIONS ---------------------------------
-     Delete this array entirely if it does not apply — the CV renderer
+     Delete this array entirely if it does not apply — the resume renderer
      skips the whole section when it is empty, which is far better than
      printing a heading with nothing under it. */
   education: [
     {
-      what:  "Computer Information Systems \u2014 major in Software Development, minor in Supply Chain",
-      where: "Mount Royal University",
-      when:  "Graduating Fall 2026",
-      note:  "",
+      what:  "Bachelor of Computer Information Systems",
+      where: "Mount Royal University \u00b7 Calgary, AB",
+      when:  "2020 \u2014 Fall 2026",
+      note:  "Major in Software Development, minor in Supply Chain.",
     },
   ],
 };
@@ -242,13 +282,13 @@ const ICON = {
   code:     '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6l-5 6 5 6"/><path d="M16 6l5 6-5 6"/></svg>',
   mail:     '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>',
   pin:      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.5-7-10a7 7 0 0114 0c0 5.5-7 10-7 10z"/><circle cx="12" cy="11" r="2.5"/></svg>',
+  phone:    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.6 2.6a2 2 0 01-.5 2.1L8.1 9.5a16 16 0 006 6l1.1-1.1a2 2 0 012.1-.5c.8.3 1.7.5 2.6.6a2 2 0 011.7 2z"/></svg>',
   github:   '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-4 1.3-4-2-6-2.5m12 4v-3.3a3 3 0 00-.8-2.3c2.7-.3 5.5-1.3 5.5-6a4.6 4.6 0 00-1.3-3.2 4.3 4.3 0 00-.1-3.2s-1-.3-3.4 1.3a11.7 11.7 0 00-6 0C6.5 2.2 5.5 2.5 5.5 2.5a4.3 4.3 0 00-.1 3.2A4.6 4.6 0 004 8.9c0 4.7 2.8 5.7 5.5 6a3 3 0 00-.8 2.3V21"/></svg>',
   linkedin: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 014 0v4"/></svg>',
   doc:      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5"/></svg>',
   arrow:    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>',
   menu:     '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg>',
   close:    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12"/><path d="M18 6L6 18"/></svg>',
-  theme:    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>',
 };
 
 /* =====================================================================
@@ -281,22 +321,21 @@ function injectShell() {
       <div class="wrap header-inner">
         <a class="brand" href="index.html">
           <span class="brand-mark" aria-hidden="true">${esc(initials(PROFILE.name))}</span>
-          ${esc(PROFILE.name.split(" ")[0])}<span>.</span>
+          <span class="brand-name">${esc(PROFILE.name)}</span>
         </a>
 
-        ${onCv ? "" : `<nav class="nav" aria-label="Main">${navLinks}</nav>`}
+        ${onCv ? "" : `<nav class="nav" aria-label="Main">${navLinks}
+          <span class="nav-glow" aria-hidden="true"></span></nav>`}
 
         <div class="header-actions">
           ${onCv
             ? `<a class="btn btn-ghost" href="index.html">Back to site</a>
-               <button class="btn btn-primary no-print" type="button" data-print>Print or save PDF</button>`
-            : `<a class="btn btn-ghost" href="${esc(PROFILE.links.cv)}">${ICON.doc} CV</a>
-               <a class="btn btn-primary" href="mailto:${esc(PROFILE.email)}">Get in touch</a>`}
+               ${PROFILE.links.resumePdf ? `<a class="btn btn-ghost no-print" href="${esc(PROFILE.links.resumePdf)}" download>${ICON.doc} PDF</a>` : ""}
+               ${PROFILE.links.resumeDocx ? `<a class="btn btn-ghost no-print" href="${esc(PROFILE.links.resumeDocx)}" download>${ICON.doc} Word</a>` : ""}
+               <button class="btn btn-primary no-print" type="button" data-print>Print</button>`
+            : `<a class="btn btn-ghost" href="${esc(PROFILE.links.resume)}">${ICON.doc} Resume</a>
+               <a class="btn btn-primary" href="${base}#contact">Get in touch</a>`}
 
-          <button class="icon-btn" id="themeToggle" type="button"
-                  aria-label="Switch between light and dark theme" title="Switch theme">
-            ${ICON.theme}
-          </button>
 
           ${onCv ? "" : `
           <button class="icon-btn nav-toggle" id="navToggle" type="button"
@@ -311,7 +350,7 @@ function injectShell() {
     <nav class="mobile-nav" id="mobileNav" aria-label="Mobile">
       ${NAV.map((n, i) =>
         `<a href="${base}${n.href}"><i>${pad2(i + 1)}</i>${esc(n.label)}</a>`).join("")}
-      <a href="${esc(PROFILE.links.cv)}"><i>${pad2(NAV.length + 1)}</i>cv</a>
+      <a href="${esc(PROFILE.links.resume)}"><i>${pad2(NAV.length + 1)}</i>resume</a>
     </nav>`}`);
 
   const year = new Date().getFullYear();
@@ -323,7 +362,7 @@ function injectShell() {
           <a href="mailto:${esc(PROFILE.email)}">email</a>
           ${PROFILE.links.github ? `<a href="${esc(PROFILE.links.github)}" target="_blank" rel="noopener">github</a>` : ""}
           ${PROFILE.links.linkedin ? `<a href="${esc(PROFILE.links.linkedin)}" target="_blank" rel="noopener">linkedin</a>` : ""}
-          <a href="${esc(PROFILE.links.cv)}">cv</a>
+          <a href="${esc(PROFILE.links.resume)}">resume</a>
         </div>
       </div>
     </footer>`);
@@ -359,20 +398,6 @@ function initMobileNav() {
   });
 }
 
-/* ---------- theme ----------
-   The choice is stored; while nothing is stored the site follows the
-   operating system, including a change made while the page is open. */
-const THEME_KEY = "portfolio-theme";
-function initTheme() {
-  const btn = $("#themeToggle");
-  if (!btn) return;
-  btn.addEventListener("click", () => {
-    const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
-    document.documentElement.dataset.theme = next;
-    try { localStorage.setItem(THEME_KEY, next); } catch { /* private mode */ }
-  });
-}
-
 /* =====================================================================
    HERO
    ===================================================================== */
@@ -396,7 +421,7 @@ function renderHero() {
 
     <div class="hero-cta reveal d3">
       <a class="btn btn-primary" href="#work">See the work ${ICON.arrow}</a>
-      <a class="btn btn-ghost" href="${esc(PROFILE.links.cv)}">${ICON.doc} Read the CV</a>
+      <a class="btn btn-ghost" href="${esc(PROFILE.links.resume)}">${ICON.doc} Read the resume</a>
       ${PROFILE.links.github
         ? `<a class="btn btn-ghost" href="${esc(PROFILE.links.github)}" target="_blank" rel="noopener">${ICON.github} GitHub</a>`
         : ""}
@@ -577,13 +602,13 @@ function renderContact() {
 
   el.innerHTML =
     card(ICON.mail, "Email", PROFILE.email, "mailto:" + PROFILE.email) +
-    card(ICON.github, "GitHub", host(PROFILE.links.github), PROFILE.links.github, true) +
+    card(ICON.phone, "Phone", PROFILE.phone, "tel:" + String(PROFILE.phone || "").replace(/[^\d+]/g, "")) +
     card(ICON.linkedin, "LinkedIn", host(PROFILE.links.linkedin), PROFILE.links.linkedin, true) +
     staticCard(ICON.pin, "Based in", PROFILE.location);
 }
 
 /* =====================================================================
-   THE CV PAGE
+   THE RESUME PAGE
    ===================================================================== */
 function renderCv() {
   const el = $("[data-cv]");
@@ -595,12 +620,15 @@ function renderCv() {
     <header class="cv-head">
       <h1>${esc(PROFILE.name)}</h1>
       <p class="lead" style="margin-top:.5rem">${esc(PROFILE.title)} · ${esc(PROFILE.location)}</p>
-      <p class="cv-contact">
-        <span>${esc(PROFILE.email)}</span>
-        ${PROFILE.links.github ? `<span>${link(PROFILE.links.github)}</span>` : ""}
-        ${PROFILE.links.linkedin ? `<span>${link(PROFILE.links.linkedin)}</span>` : ""}
-        ${PROFILE.links.website ? `<span>${link(PROFILE.links.website)}</span>` : ""}
-      </p>
+      <p class="cv-contact">${
+        /* Only the two things a reader needs in order to contact you.
+           Profiles and the portfolio live in a framed block at the foot
+           of the page: they are worth listing, but they are not what the
+           top of a resume is for. */
+        [ PROFILE.phone ? esc(PROFILE.phone) : "",
+          `<a href="mailto:${esc(PROFILE.email)}">${esc(PROFILE.email)}</a>`,
+        ].filter(Boolean).map((x) => `<span>${x}</span>`).join('<i aria-hidden="true">·</i>')
+      }</p>
     </header>
 
     <section class="cv-section">
@@ -622,16 +650,16 @@ function renderCv() {
 
     <section class="cv-section">
       <p class="eyebrow">Selected projects</p>
-      <div class="timeline">${PROFILE.projects
+      <div class="cv-items">${PROFILE.projects
         .filter((p) => !p.name.startsWith("TODO"))
         .map((p) => `
-        <article class="role">
-          <p class="role-when"><b>${esc(p.role)}</b>${p.live ? esc(host(p.live)) : ""}</p>
-          <div>
-            <h3>${esc(p.name)}</h3>
-            <ul><li>${esc(p.blurb)}</li></ul>
-            <p class="stat-note" style="margin-top:.6rem">${esc((p.stack || []).join(" · "))}</p>
-          </div>
+        <article class="cv-item">
+          <h3>${esc(p.name)}${p.live
+            ? ` <a class="cv-item-link" href="${esc(p.live)}">${esc(host(p.live))}</a>` : ""}</h3>
+          ${p.role ? `<p class="cv-item-sub">${esc(p.role)}</p>` : ""}
+          <ul><li>${esc(p.short || p.blurb)}</li></ul>
+          ${(p.stack || []).length
+            ? `<p class="cv-item-stack">${esc(p.stack.join(" · "))}</p>` : ""}
         </article>`).join("")}</div>
     </section>
 
@@ -652,6 +680,18 @@ function renderCv() {
             ${e.note ? `<ul><li>${esc(e.note)}</li></ul>` : ""}
           </div>
         </article>`).join("")}</div>
+    </section>` : ""}
+
+    ${[PROFILE.links.github, PROFILE.links.linkedin, PROFILE.links.website]
+        .filter(Boolean).length ? `
+    <section class="cv-section">
+      <p class="eyebrow">Links</p>
+      <p class="cv-links">${
+        [PROFILE.links.github, PROFILE.links.linkedin, PROFILE.links.website]
+          .filter(Boolean)
+          .map((u) => `<span>${link(u)}</span>`)
+          .join('<i aria-hidden="true">·</i>')
+      }</p>
     </section>` : ""}`;
 }
 
@@ -663,7 +703,7 @@ function renderCv() {
    ===================================================================== */
 function fillMeta() {
   const suffix = `${PROFILE.name} · ${PROFILE.title}`;
-  if (document.body.dataset.page === "resume") document.title = `CV · ${suffix}`;
+  if (document.body.dataset.page === "resume") document.title = `Resume · ${suffix}`;
 
   $$("[data-fill]").forEach((el) => {
     const key = el.dataset.fill;
@@ -693,7 +733,6 @@ function fillMeta() {
 
 document.addEventListener("DOMContentLoaded", () => {
   injectShell();
-  initTheme();
   initMobileNav();
   initPrint();
 
