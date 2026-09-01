@@ -192,6 +192,11 @@ section{ padding-block:clamp(52px, 7.5vw, 96px); position:relative; }
 .backdrop{
   position:fixed; inset:0; z-index:-1; pointer-events:none;
   background-color:var(--bg);
+  /* Promoted to its own compositor layer. Without this the grid and the
+     two colour washes are re-rasterised as content scrolls over them;
+     with it they are painted once and simply held. */
+  transform:translateZ(0);
+  will-change:transform;
 }
 .backdrop::before{
   content:""; position:absolute; inset:0;
@@ -215,9 +220,12 @@ section{ padding-block:clamp(52px, 7.5vw, 96px); position:relative; }
 .site-header{
   position:sticky; top:0; z-index:80;
   height:var(--header-h);
-  background:color-mix(in srgb, var(--bg) 72%, transparent);
-  backdrop-filter:blur(16px) saturate(140%);
-  -webkit-backdrop-filter:blur(16px) saturate(140%);
+  /* No backdrop-filter here. A blur behind a sticky element has to be
+     recomputed against whatever is scrolling underneath it, every single
+     frame, for the full width of the viewport — it was the largest cost
+     in the scroll path. On a ground this dark a near-opaque panel is
+     almost indistinguishable and costs nothing. */
+  background:color-mix(in srgb, var(--bg) 92%, transparent);
   border-bottom:1px solid transparent;
   transition:border-color .25s, background-color .25s;
 }
@@ -225,7 +233,7 @@ section{ padding-block:clamp(52px, 7.5vw, 96px); position:relative; }
    of the page is one uninterrupted surface. */
 .site-header.is-stuck{
   border-bottom-color:var(--line-2);
-  background:color-mix(in srgb, var(--bg) 88%, transparent);
+  background:color-mix(in srgb, var(--bg) 97%, transparent);
 }
 
 .header-inner{ height:100%; display:flex; align-items:center; gap:1rem; }
@@ -539,6 +547,7 @@ section{ padding-block:clamp(52px, 7.5vw, 96px); position:relative; }
 .ticker-track{
   display:flex; width:max-content;
   animation:slide 46s linear infinite;
+  will-change:transform;
 }
 .ticker:hover .ticker-track{ animation-play-state:paused; }
 .ticker-item{
@@ -552,6 +561,11 @@ section{ padding-block:clamp(52px, 7.5vw, 96px); position:relative; }
   content:""; width:4px; height:4px; border-radius:50%;
   background:var(--accent); opacity:.5;
 }
+/* Anything animating while off screen is pure waste: the browser still
+   ticks it, still paints it, and it competes with the scroll. JS adds
+   this class to whatever has scrolled out of view. */
+.anim-idle, .anim-idle *{ animation-play-state:paused !important; }
+
 @keyframes slide{ from{ transform:translate3d(0,0,0) } to{ transform:translate3d(-50%,0,0) } }
 
 /* =====================================================================
@@ -629,9 +643,9 @@ section{ padding-block:clamp(52px, 7.5vw, 96px); position:relative; }
   position:absolute; top:.9rem; inset-inline-start:1rem; z-index:2;
   font-family:var(--mono); font-size:.7rem; letter-spacing:.12em;
   color:var(--ink-2);
-  background:color-mix(in srgb, var(--bg) 70%, transparent);
-  backdrop-filter:blur(6px);
-  -webkit-backdrop-filter:blur(6px);
+  /* Was a 6px backdrop blur. Four of them, all in the scroll path, for
+     an effect nobody can see behind an opaque-enough chip. */
+  background:color-mix(in srgb, var(--bg) 88%, transparent);
   padding:.2rem .5rem; border-radius:5px;
   box-shadow:inset 0 0 0 1px var(--line-2);
 }

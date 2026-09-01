@@ -57,6 +57,24 @@
       setTimeout(land, dur + 150);
     };
 
+    /* ---------- pause animation that has scrolled off screen ----------
+       The sheen animates background-position, which no browser can hand
+       to the compositor: every frame repaints the text of every element
+       running it. A dozen of those ticking at once, most of them off
+       screen, is work the scroll has to compete with. The ticker and the
+       availability pulse are cheaper but equally pointless once out of
+       view. Each is parked until it comes back. */
+    const animated = qa(".ticker, .eyebrow, .stat-note, .site-footer p, .status");
+    if (animated.length && "IntersectionObserver" in window) {
+      const idle = new IntersectionObserver((entries) => {
+        entries.forEach((e) => e.target.classList.toggle("anim-idle", !e.isIntersecting));
+      }, { rootMargin: "120px 0px" });   /* wake just before it is needed */
+      animated.forEach((el) => {
+        el.classList.add("anim-idle");
+        idle.observe(el);
+      });
+    }
+
     /* ---------- scroll reveal ---------- */
     const items = qa(".reveal");
 
